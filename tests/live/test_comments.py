@@ -1,4 +1,4 @@
-from instagrapi.exceptions import (
+from instagrapi_latest.exceptions import (
     ClientForbiddenError,
     ClientGraphqlError,
     ClientLoginRequired,

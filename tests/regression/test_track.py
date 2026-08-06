@@ -1,4 +1,4 @@
-from instagrapi.exceptions import TrackNotFound
+from instagrapi_latest.exceptions import TrackNotFound
 from tests.helpers import *
 
 

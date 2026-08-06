@@ -29,7 +29,7 @@ class LocationMixinRegressionTestCase(unittest.TestCase):
 
     def test_extract_location_coerces_external_id_to_int(self):
         """IG sometimes ships external_id as a numeric string."""
-        from instagrapi.extractors import extract_location
+        from instagrapi_latest.extractors import extract_location
 
         location = extract_location(
             {
@@ -44,7 +44,7 @@ class LocationMixinRegressionTestCase(unittest.TestCase):
         """IG returns None / '' / the literal 'None' for degraded location
         payloads — used to crash media_info_gql with a pydantic
         int_parsing error. See issue #72."""
-        from instagrapi.extractors import extract_location
+        from instagrapi_latest.extractors import extract_location
 
         for raw in (None, "", "None"):
             with self.subTest(external_id=raw):
@@ -52,7 +52,7 @@ class LocationMixinRegressionTestCase(unittest.TestCase):
                 self.assertIsNone(location.external_id)
 
     def test_extract_location_falls_back_to_facebook_places_id(self):
-        from instagrapi.extractors import extract_location
+        from instagrapi_latest.extractors import extract_location
 
         location = extract_location(
             {

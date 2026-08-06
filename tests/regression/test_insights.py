@@ -1,4 +1,4 @@
-from instagrapi.exceptions import MediaError
+from instagrapi_latest.exceptions import MediaError
 from tests.helpers import *
 
 

@@ -1,6 +1,6 @@
-from instagrapi.exceptions import FeedbackRequired, SignupSpamError
-from instagrapi.mixins.challenge import ChallengeChoice
-from instagrapi.mixins.signup import CHOICE_EMAIL
+from instagrapi_latest.exceptions import FeedbackRequired, SignupSpamError
+from instagrapi_latest.mixins.challenge import ChallengeChoice
+from instagrapi_latest.mixins.signup import CHOICE_EMAIL
 from tests.helpers import *
 from tests.live.test_signup import SignUpTestCase
 
@@ -318,7 +318,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                         return_value={"created_user": {"pk": "1", "username": "example"}},
                     ) as accounts_create:
                         with mock.patch(
-                            "instagrapi.mixins.signup.extract_user_short",
+                            "instagrapi_latest.mixins.signup.extract_user_short",
                             return_value="created-user",
                         ):
                             with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):
@@ -363,7 +363,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                     return_value={"created_user": {"pk": "1", "username": "example"}},
                 ):
                     with mock.patch(
-                        "instagrapi.mixins.signup.extract_user_short",
+                        "instagrapi_latest.mixins.signup.extract_user_short",
                         return_value="created-user",
                     ):
                         with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):
@@ -644,7 +644,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                             ):
                                 with mock.patch.object(client, "challenge_flow", return_value=True) as challenge_flow:
                                     with mock.patch(
-                                        "instagrapi.mixins.signup.extract_user_short",
+                                        "instagrapi_latest.mixins.signup.extract_user_short",
                                         return_value="created-user",
                                     ):
                                         with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):

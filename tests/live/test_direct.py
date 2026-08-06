@@ -1,4 +1,4 @@
-from instagrapi.exceptions import DirectMessageNotFound
+from instagrapi_latest.exceptions import DirectMessageNotFound
 from tests import helpers as _helpers
 from tests.helpers import *
 
@@ -460,7 +460,7 @@ class ClientDirectMessageTypesTestCase(_helpers.ClientPrivateTestCase):
         """Test that DirectMessage.reactions field uses MessageReactions model"""
         from datetime import datetime
 
-        from instagrapi.types import MessageReaction, MessageReactions
+        from instagrapi_latest.types import MessageReaction, MessageReactions
 
         # Get some direct messages
         threads = self.cl.direct_threads(amount=5)
@@ -490,7 +490,7 @@ class ClientDirectMessageTypesTestCase(_helpers.ClientPrivateTestCase):
 
     def test_direct_message_link_model(self):
         """Test that DirectMessage.link field uses MessageLink model"""
-        from instagrapi.types import LinkContext, MessageLink
+        from instagrapi_latest.types import LinkContext, MessageLink
 
         # Get some direct messages
         threads = self.cl.direct_threads(amount=5)
@@ -517,7 +517,7 @@ class ClientDirectMessageTypesTestCase(_helpers.ClientPrivateTestCase):
 
     def test_direct_message_visual_media_model(self):
         """Test that DirectMessage.visual_media field uses VisualMedia model"""
-        from instagrapi.types import VisualMedia, VisualMediaContent
+        from instagrapi_latest.types import VisualMedia, VisualMediaContent
 
         # Get some direct messages
         threads = self.cl.direct_threads(amount=5)
@@ -541,7 +541,7 @@ class ClientDirectMessageTypesTestCase(_helpers.ClientPrivateTestCase):
         """Test that DirectThread.last_seen_at field uses LastSeenInfo model"""
         from datetime import datetime
 
-        from instagrapi.types import LastSeenInfo
+        from instagrapi_latest.types import LastSeenInfo
 
         # Get some direct threads
         threads = self.cl.direct_threads(amount=5)
@@ -565,7 +565,7 @@ class ClientDirectMessageTypesTestCase(_helpers.ClientPrivateTestCase):
 
     def test_direct_message_clips_metadata_model(self):
         """Test that DirectMessage.clips_metadata field uses ClipsMetadata model"""
-        from instagrapi.types import ClipsMetadata
+        from instagrapi_latest.types import ClipsMetadata
 
         # Get some direct messages
         threads = self.cl.direct_threads(amount=5)

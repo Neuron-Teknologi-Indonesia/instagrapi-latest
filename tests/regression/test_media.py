@@ -1,6 +1,6 @@
 import json
 
-from instagrapi.extractors import extract_media_gql, extract_media_v1
+from instagrapi_latest.extractors import extract_media_gql, extract_media_v1
 from tests.helpers import *
 
 
@@ -106,7 +106,7 @@ class MediaInfoV2RegressionTestCase(unittest.TestCase):
         self.assertEqual(params["media_id"], "3613500067578544892")
 
     def test_media_info_v2_raises_media_not_found_when_payload_empty(self):
-        from instagrapi.exceptions import MediaNotFound
+        from instagrapi_latest.exceptions import MediaNotFound
 
         client = Client()
         client.last_json = {}

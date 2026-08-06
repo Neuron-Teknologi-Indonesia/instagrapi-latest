@@ -1,6 +1,6 @@
 import io
 
-from instagrapi.exceptions import ClientForbiddenError, ClientIncompleteReadError
+from instagrapi_latest.exceptions import ClientForbiddenError, ClientIncompleteReadError
 from tests.helpers import *
 
 
@@ -132,7 +132,7 @@ class DownloadRegressionTestCase(unittest.TestCase):
             path = Path(tmpdir) / "photo.jpg"
             path.write_bytes(b"existing-photo")
 
-            with mock.patch("instagrapi.mixins.photo.requests.get") as get:
+            with mock.patch("instagrapi_latest.mixins.photo.requests.get") as get:
                 result = client.photo_download_by_url(
                     "https://example.com/photo.jpg",
                     folder=tmpdir,
@@ -149,7 +149,7 @@ class DownloadRegressionTestCase(unittest.TestCase):
             path = Path(tmpdir) / "video.mp4"
             path.write_bytes(b"existing-video")
 
-            with mock.patch("instagrapi.mixins.video.requests.get") as get:
+            with mock.patch("instagrapi_latest.mixins.video.requests.get") as get:
                 result = client.video_download_by_url(
                     "https://example.com/video.mp4",
                     folder=tmpdir,
@@ -192,7 +192,7 @@ class DownloadRegressionTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "photo.jpg"
 
-            with mock.patch("instagrapi.mixins.photo.requests.get", return_value=response):
+            with mock.patch("instagrapi_latest.mixins.photo.requests.get", return_value=response):
                 with self.assertRaises(ClientIncompleteReadError) as ctx:
                     client.photo_download_by_url("https://example.com/photo.jpg", folder=tmpdir)
 
@@ -204,7 +204,7 @@ class DownloadRegressionTestCase(unittest.TestCase):
         client = Client()
         response = _DownloadResponse(b"short", content_length=10)
 
-        with mock.patch("instagrapi.mixins.photo.requests.get", return_value=response):
+        with mock.patch("instagrapi_latest.mixins.photo.requests.get", return_value=response):
             with self.assertRaises(ClientIncompleteReadError) as ctx:
                 client.photo_download_by_url_origin("https://example.com/photo.jpg")
 

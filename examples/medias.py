@@ -1,7 +1,7 @@
 from typing import List
 
-from instagrapi import Client
-from instagrapi.types import Media
+from instagrapi_latest import Client
+from instagrapi_latest.types import Media
 
 HASHTAGS = ["instacool"]
 IG_USERNAME = ""

@@ -1,4 +1,4 @@
-from instagrapi.exceptions import ClientNotFoundError, UserNotFound
+from instagrapi_latest.exceptions import ClientNotFoundError, UserNotFound
 from tests.helpers import *
 
 

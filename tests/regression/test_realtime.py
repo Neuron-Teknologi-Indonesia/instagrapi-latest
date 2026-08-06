@@ -4,9 +4,9 @@ import threading
 import zlib
 from unittest import mock
 
-from instagrapi import Client
-from instagrapi.realtime import RealtimeClient
-from instagrapi.realtime.mqttot import (
+from instagrapi_latest import Client
+from instagrapi_latest.realtime import RealtimeClient
+from instagrapi_latest.realtime.mqttot import (
     MQTToTConnection,
     MQTToTTopics,
     SocketMQTToTTransport,

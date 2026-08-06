@@ -128,7 +128,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         return mock.patch("builtins.__import__", side_effect=blocked_import)
 
     def test_mp4_metadata_parser_reads_dimensions_and_duration(self):
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.utils.video import read_video_metadata
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = self.write_sample_mp4(Path(tmpdir))
@@ -139,9 +139,9 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertAlmostEqual(metadata.duration, 3.5)
 
     def test_analyze_video_with_thumbnail_does_not_import_moviepy(self):
-        import instagrapi.mixins.clip as clip_mixin
-        import instagrapi.mixins.igtv as igtv_mixin
-        import instagrapi.mixins.video as video_mixin
+        import instagrapi_latest.mixins.clip as clip_mixin
+        import instagrapi_latest.mixins.igtv as igtv_mixin
+        import instagrapi_latest.mixins.video as video_mixin
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
@@ -164,7 +164,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertAlmostEqual(igtv_result[3], 3.5)
 
     def test_missing_thumbnail_reports_ffmpeg_fix(self):
-        import instagrapi.mixins.video as video_mixin
+        import instagrapi_latest.mixins.video as video_mixin
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = self.write_sample_mp4(Path(tmpdir))
@@ -178,7 +178,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertIn("IMAGEIO_FFMPEG_EXE", message)
 
     def test_missing_thumbnail_wraps_imageio_ffmpeg_error(self):
-        import instagrapi.mixins.video as video_mixin
+        import instagrapi_latest.mixins.video as video_mixin
 
         imageio_error = RuntimeError(
             "No ffmpeg exe could be found. Install ffmpeg on your system, "
@@ -205,19 +205,19 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertNotIn('"moviepy==1.0.3"', optional_dependencies)
 
     def test_story_builder_import_does_not_require_moviepy(self):
-        sys.modules.pop("instagrapi.story", None)
+        sys.modules.pop("instagrapi_latest.story", None)
         with self.block_moviepy_imports(ImportError("no moviepy")):
             try:
-                story = importlib.import_module("instagrapi.story")
+                story = importlib.import_module("instagrapi_latest.story")
             except Exception as exc:
                 self.fail(f"StoryBuilder import should not require MoviePy: {exc}")
 
         self.assertEqual(story.StoryBuilder(Path("photo.jpg")).path, Path("photo.jpg"))
 
     def test_story_builder_render_reports_video_extra_without_moviepy(self):
-        sys.modules.pop("instagrapi.story", None)
+        sys.modules.pop("instagrapi_latest.story", None)
         with self.block_moviepy_imports(ImportError("no moviepy")):
-            story = importlib.import_module("instagrapi.story")
+            story = importlib.import_module("instagrapi_latest.story")
             with self.assertRaises(RuntimeError) as ctx:
                 story.StoryBuilder(Path("video.mp4")).video()
 
@@ -227,7 +227,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertIn("--no-deps", message)
 
     def test_prepare_video_reports_video_extra_without_moviepy(self):
-        from instagrapi.image_util import prepare_video
+        from instagrapi_latest.image_util import prepare_video
 
         with self.block_moviepy_imports(ImportError("no moviepy")):
             with self.assertRaises(RuntimeError) as ctx:
@@ -241,8 +241,8 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
     def test_story_builder_photo_generates_video_with_moviepy_2(self):
         from PIL import Image
 
-        from instagrapi.story import StoryBuilder
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.story import StoryBuilder
+        from instagrapi_latest.utils.video import read_video_metadata
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -263,8 +263,8 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
                     os.unlink(build.path)
 
     def test_story_builder_video_fit_generates_canvas_without_cropping(self):
-        from instagrapi.story import StoryBuilder
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.story import StoryBuilder
+        from instagrapi_latest.utils.video import read_video_metadata
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -298,7 +298,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
                     os.unlink(build.path)
 
     def test_prepare_video_generates_thumbnail_with_moviepy_2(self):
-        from instagrapi.image_util import prepare_video
+        from instagrapi_latest.image_util import prepare_video
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:

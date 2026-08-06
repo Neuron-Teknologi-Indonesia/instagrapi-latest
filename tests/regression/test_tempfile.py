@@ -7,7 +7,7 @@ class TempfileHelperRegressionTestCase(unittest.TestCase):
     CodeQL ``py/insecure-temporary-file``)."""
 
     def test_clip_helper_creates_file_with_suffix(self):
-        from instagrapi.mixins.clip import _make_tmp_path
+        from instagrapi_latest.mixins.clip import _make_tmp_path
 
         path = _make_tmp_path(".m4a")
         try:
@@ -17,7 +17,7 @@ class TempfileHelperRegressionTestCase(unittest.TestCase):
             os.remove(path)
 
     def test_clip_helper_returns_unique_paths(self):
-        from instagrapi.mixins.clip import _make_tmp_path
+        from instagrapi_latest.mixins.clip import _make_tmp_path
 
         a = _make_tmp_path(".mp4")
         b = _make_tmp_path(".mp4")
@@ -28,7 +28,7 @@ class TempfileHelperRegressionTestCase(unittest.TestCase):
             os.remove(b)
 
     def test_story_helper_creates_file_with_suffix(self):
-        from instagrapi.story import _make_tmp_path
+        from instagrapi_latest.story import _make_tmp_path
 
         path = _make_tmp_path(".mp4")
         try:

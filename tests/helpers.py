@@ -23,8 +23,8 @@ import requests
 from pydantic import ValidationError
 from requests.exceptions import RetryError
 
-from instagrapi import Client
-from instagrapi.exceptions import (
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import (
     AlbumConfigureError,
     BadCredentials,
     ChallengeError,
@@ -52,15 +52,15 @@ from instagrapi.exceptions import (
     VideoConfigureError,
     VideoConfigureStoryError,
 )
-from instagrapi.extractors import (
+from instagrapi_latest.extractors import (
     extract_direct_message,
     extract_direct_thread,
     extract_resource_v1,
     extract_story_v1,
 )
-from instagrapi.mixins.user import UserMixin
-from instagrapi.story import StoryBuilder
-from instagrapi.types import (
+from instagrapi_latest.mixins.user import UserMixin
+from instagrapi_latest.story import StoryBuilder
+from instagrapi_latest.types import (
     Account,
     Collection,
     Comment,
@@ -84,10 +84,10 @@ from instagrapi.types import (
     UserShort,
     Usertag,
 )
-from instagrapi.utils import dumps, gen_password, generate_jazoest
-from instagrapi.zones import UTC
+from instagrapi_latest.utils import dumps, gen_password, generate_jazoest
+from instagrapi_latest.zones import UTC
 
-logger = logging.getLogger("instagrapi.tests")
+logger = logging.getLogger("instagrapi_latest.tests")
 ACCOUNT_USERNAME = os.getenv("IG_USERNAME", "username")
 ACCOUNT_PASSWORD = os.getenv("IG_PASSWORD", "password*")
 ACCOUNT_SESSIONID = os.getenv("IG_SESSIONID", "")

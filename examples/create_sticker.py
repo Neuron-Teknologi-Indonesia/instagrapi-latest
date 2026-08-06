@@ -1,6 +1,6 @@
 import os
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 USERNAME = os.environ.get("IG_USERNAME")
 PASSWORD = os.environ.get("IG_PASSWORD")

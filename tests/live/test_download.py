@@ -3,7 +3,7 @@ import tempfile
 
 from PIL import Image
 
-from instagrapi.exceptions import ClientError
+from instagrapi_latest.exceptions import ClientError
 from tests import helpers as _helpers
 from tests.helpers import *
 

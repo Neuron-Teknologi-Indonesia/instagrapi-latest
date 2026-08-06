@@ -1,6 +1,6 @@
-from instagrapi.exceptions import ClientJSONDecodeError
-from instagrapi.mixins.private import JSONDecodeError as PrivateJSONDecodeError
-from instagrapi.mixins.public import JSONDecodeError as PublicJSONDecodeError
+from instagrapi_latest.exceptions import ClientJSONDecodeError
+from instagrapi_latest.mixins.private import JSONDecodeError as PrivateJSONDecodeError
+from instagrapi_latest.mixins.public import JSONDecodeError as PublicJSONDecodeError
 from tests.helpers import *
 
 

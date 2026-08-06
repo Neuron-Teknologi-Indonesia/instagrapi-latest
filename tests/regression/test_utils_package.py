@@ -5,7 +5,7 @@ from tests.helpers import *
 
 class UtilsPackageRegressionTestCase(unittest.TestCase):
     def test_legacy_utils_exports_stay_available(self):
-        import instagrapi.utils as utils
+        import instagrapi_latest.utils as utils
 
         self.assertEqual(utils.InstagramIdCodec.decode(utils.InstagramIdCodec.encode(123456789)), 123456789)
         self.assertEqual(utils.dumps({"enabled": True}), '{"enabled":true}')
@@ -18,13 +18,13 @@ class UtilsPackageRegressionTestCase(unittest.TestCase):
 
     def test_utils_submodules_are_importable(self):
         expected = {
-            "instagrapi.utils.auth": ["gen_token", "generate_signature", "generate_jazoest"],
-            "instagrapi.utils.ids": ["InstagramIdCodec"],
-            "instagrapi.utils.logging": ["truncate_log_text"],
-            "instagrapi.utils.serialization": ["InstagrapiJSONEncoder", "dumps", "json_value"],
-            "instagrapi.utils.timing": ["date_time_original", "random_delay"],
-            "instagrapi.utils.validation": ["vassert"],
-            "instagrapi.utils.video": ["analyze_video_for_upload", "read_video_metadata"],
+            "instagrapi_latest.utils.auth": ["gen_token", "generate_signature", "generate_jazoest"],
+            "instagrapi_latest.utils.ids": ["InstagramIdCodec"],
+            "instagrapi_latest.utils.logging": ["truncate_log_text"],
+            "instagrapi_latest.utils.serialization": ["InstagrapiJSONEncoder", "dumps", "json_value"],
+            "instagrapi_latest.utils.timing": ["date_time_original", "random_delay"],
+            "instagrapi_latest.utils.validation": ["vassert"],
+            "instagrapi_latest.utils.video": ["analyze_video_for_upload", "read_video_metadata"],
         }
         for module_name, names in expected.items():
             module = importlib.import_module(module_name)

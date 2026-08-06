@@ -1,4 +1,4 @@
-from instagrapi.exceptions import (
+from instagrapi_latest.exceptions import (
     AccountContactPointRequired,
     AccountEditError,
     BadPassword,
@@ -38,7 +38,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
         story = extract_story_v1(payload)
 
         # InstagramIdCodec.encode("3613500067578544892") is deterministic.
-        from instagrapi.utils import InstagramIdCodec
+        from instagrapi_latest.utils import InstagramIdCodec
 
         self.assertEqual(story.code, InstagramIdCodec.encode("3613500067578544892"))
 
@@ -132,7 +132,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
         self.assertNotIn("blacklist", cm.exception.message)
 
     def test_send_private_request_promotes_suspended_challenge_to_account_suspended(self):
-        from instagrapi.exceptions import AccountSuspended
+        from instagrapi_latest.exceptions import AccountSuspended
 
         client = self._build_private_client()
         payload = {
@@ -162,7 +162,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
                 client._send_private_request("media/123/comments/")
 
     def test_send_private_request_keeps_regular_404_as_not_found(self):
-        from instagrapi.exceptions import ClientNotFoundError
+        from instagrapi_latest.exceptions import ClientNotFoundError
 
         client = self._build_private_client()
         # Different body (not the exact "Not Found" sentinel) → standard
@@ -178,7 +178,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
                 client._send_private_request("nonexistent/")
 
     def test_send_private_request_ignores_non_json_body_on_http_error(self):
-        from instagrapi.exceptions import ClientNotFoundError
+        from instagrapi_latest.exceptions import ClientNotFoundError
 
         client = self._build_private_client()
         response = self._make_http_error_response(404, content=b"<html>not json</html>")
@@ -290,7 +290,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
                 response,
             ],
         ) as private_post:
-            with mock.patch("instagrapi.mixins.private.time.sleep") as sleep:
+            with mock.patch("instagrapi_latest.mixins.private.time.sleep") as sleep:
                 result = client.private_request("test/", data={"_uuid": client.uuid}, with_signature=False)
 
         self.assertEqual(result, {"status": "ok"})

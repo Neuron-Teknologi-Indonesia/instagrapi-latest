@@ -1,4 +1,4 @@
-from instagrapi import config
+from instagrapi_latest import config
 from tests.helpers import *
 
 

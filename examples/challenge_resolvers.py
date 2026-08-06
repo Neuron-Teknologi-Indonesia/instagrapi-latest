@@ -7,8 +7,8 @@ import imaplib
 import random
 import re
 
-from instagrapi import Client
-from instagrapi.mixins.challenge import ChallengeChoice
+from instagrapi_latest import Client
+from instagrapi_latest.mixins.challenge import ChallengeChoice
 
 CHALLENGE_EMAIL = ""
 CHALLENGE_PASSWORD = ""

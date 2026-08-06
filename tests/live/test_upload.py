@@ -1,6 +1,6 @@
 import io
 
-from instagrapi.exceptions import ClientNotFoundError, ClipNotUpload, MediaNotFound, PhotoConfigureError, PhotoNotUpload
+from instagrapi_latest.exceptions import ClientNotFoundError, ClipNotUpload, MediaNotFound, PhotoConfigureError, PhotoNotUpload
 from tests import helpers as _helpers
 from tests.helpers import *
 
