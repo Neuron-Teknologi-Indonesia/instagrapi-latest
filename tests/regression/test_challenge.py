@@ -550,6 +550,29 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         self.assertEqual(send_request.call_args.args[0], "challenge/12345/nonce-code/")
         resolve_simple.assert_called_once_with("/challenge/12345/nonce-code/")
 
+    def test_opaque_native_get_does_not_use_html_contact_form(self):
+        client = Client()
+        client.uuid = "uuid-1"
+        client.android_device_id = "android-1"
+        last_json = {
+            "message": "challenge_required",
+            "challenge": {
+                "api_path": "/challenge/AXJdIfyDxs/Af134doLlM/",
+                "native_flow": True,
+                "challenge_context": "opaque-context",
+            },
+            "status": "fail",
+        }
+        client.last_json = dict(last_json)
+
+        with mock.patch.object(client, "_send_private_request", side_effect=ChallengeRequired(**last_json)):
+            with mock.patch.object(client, "challenge_resolve_contact_form") as contact_form:
+                with self.assertRaises(ChallengeRequired) as cm:
+                    client.challenge_resolve(last_json)
+
+        contact_form.assert_not_called()
+        self.assertIn("native challenge flow", str(cm.exception))
+
     def test_challenge_resolve_falls_back_to_contact_form(self):
         client = Client()
         client.last_json = {"message": "challenge_required", "status": "fail"}
