@@ -17,6 +17,8 @@ from instagrapi.exceptions import (
     RecaptchaChallengeForm,
     SelectContactPointRecoveryForm,
     SubmitPhoneNumberForm,
+    challenge_path_segments,
+    is_opaque_native_challenge,
 )
 
 WAIT_SECONDS = 5
@@ -73,6 +75,20 @@ class ChallengeResolveMixin:
 
     def _challenge_error_context(self) -> Dict:
         return {key: value for key, value in self.last_json.items() if key != "message"}
+
+    def _ensure_challenge_closed(self, step: str) -> bool:
+        """Verify that Instagram reported the challenge as completed after ``step``."""
+        if self.last_json.get("action", "") == "close" and self.last_json.get("status", "") == "ok":
+            return True
+        errors = self.last_json.get("errors") or []
+        detail = " ".join(str(error) for error in errors) if isinstance(errors, list) else str(errors)
+        step_name = self.last_json.get("step_name") or ""
+        raise ChallengeError(
+            f"Challenge did not close after {step}"
+            + (f" (Instagram moved to step `{step_name}`)" if step_name else "")
+            + (f": {detail}" if detail else "")
+            + ". Check the submitted code and retry, or complete the checkpoint manually."
+        )
 
     def _raise_bloks_redirect_required(self) -> None:
         raise ChallengeRequired(
@@ -147,15 +163,32 @@ class ChallengeResolveMixin:
         bool
             A boolean value
         """
+        last_json = last_json if isinstance(last_json, dict) else {}
+        challenge = last_json.get("challenge")
+        if not isinstance(challenge, dict):
+            challenge = {}
+        api_path = challenge.get("api_path")
+        if not api_path:
+            # Masked checkpoints (bare "Not Found" 404 bodies) and minimal
+            # {"message": "challenge_required"} payloads carry no api_path,
+            # so there is nothing the resolver can request.
+            error_context = dict(last_json)
+            error_context["message"] = "challenge_required"
+            raise ChallengeRequired(
+                "Instagram requires additional verification but did not return a challenge api_path. "
+                "Complete the checkpoint in the official Instagram app or web flow on a trusted device, "
+                "then retry with the same saved client settings, device identifiers, and proxy/IP.",
+                **error_context,
+            )
         # START GET REQUEST to challenge_url
-        challenge_url = self._normalize_challenge_api_path(last_json["challenge"]["api_path"])
+        challenge_url = self._normalize_challenge_api_path(api_path)
         if challenge_url.startswith("/auth_platform/"):
             last_json["message"] = (
                 "Manual verification required via Instagram auth platform flow. "
                 "This challenge is not yet supported automatically."
             )
             raise ChallengeRequired(**last_json)
-        if last_json.get("challenge", {}).get("native_flow") and challenge_url.startswith("/challenge/"):
+        if is_opaque_native_challenge(challenge, challenge_url):
             error_context = dict(last_json)
             error_context["message"] = "challenge_required"
             raise ChallengeRequired(
@@ -165,30 +198,31 @@ class ChallengeResolveMixin:
                 "Retry with the same saved client settings, device identifiers, and proxy/IP.",
                 **error_context,
             )
-        try:
-            user_id, nonce_code = challenge_url.split("/")[2:4]
-            challenge_context = last_json.get("challenge", {}).get("challenge_context")
-            if not challenge_context:
-                challenge_context = json.dumps(
-                    {
-                        "step_name": "",
-                        "nonce_code": nonce_code,
-                        "user_id": int(user_id),
-                        "is_stateless": False,
-                    }
-                )
-            params = {
-                "guid": self.uuid,
-                "device_id": self.android_device_id,
-                "challenge_context": challenge_context,
-            }
-        except ValueError:
-            # not enough values to unpack (expected 2, got 1)
-            params = {}
+        segments = challenge_path_segments(challenge_url)
+        challenge_context = challenge.get("challenge_context")
+        if not challenge_context and len(segments) >= 2 and segments[0].isdigit():
+            user_id, nonce_code = segments[0], segments[1]
+            challenge_context = json.dumps(
+                {
+                    "step_name": "",
+                    "nonce_code": nonce_code,
+                    "user_id": int(user_id),
+                    "is_stateless": False,
+                }
+            )
+        params = {
+            "guid": self.uuid,
+            "device_id": self.android_device_id,
+        }
+        if challenge_context:
+            # Stateless "/challenge/" checkpoints only identify themselves through
+            # the server-provided context; never drop it.
+            params["challenge_context"] = challenge_context
         try:
             self._send_private_request(challenge_url.lstrip("/"), params=params)
         except ChallengeRequired:
-            assert self.last_json["message"] == "challenge_required", self.last_json
+            if self.last_json.get("message") != "challenge_required":
+                raise
             return self.challenge_resolve_contact_form(challenge_url)
         return self.challenge_resolve_simple(challenge_url)
 
@@ -501,6 +535,9 @@ class ChallengeResolveMixin:
         bool
             A boolean value
         """
+        # Always address the versioned mobile API (/api/v1/challenge/...). A
+        # leading slash would make _send_private_request skip the /v1 prefix.
+        challenge_url = challenge_url.lstrip("/")
         step_name = self.last_json.get("step_name", "")
         if step_name in ("delta_login_review", "delta_acknowledge_approved", "scraping_warning"):
             # IT WAS ME (by GEO)
@@ -543,8 +580,7 @@ class ChallengeResolveMixin:
                 'user_id': 12060121299,
                 'status': 'ok'}
                 """
-                steps = self.last_json["step_data"].keys()
-                challenge_url = challenge_url[1:]
+                steps = (self.last_json.get("step_data") or {}).keys()
                 if "email" in steps:
                     choice = ChallengeChoice.EMAIL
                     self._send_private_request(challenge_url, {"choice": str(choice.value)})
@@ -559,9 +595,7 @@ class ChallengeResolveMixin:
             code = self.challenge_code_or_raised(choice, wait_seconds=5, attempts=24)
             self._send_private_request(challenge_url, {"security_code": code})
             # assert 'logged_in_user' in client.last_json
-            assert self.last_json.get("action", "") == "close"
-            assert self.last_json.get("status", "") == "ok"
-            return True
+            return self._ensure_challenge_closed("security code submission")
         elif step_name == "submit_phone":
             phone_number = getattr(self, "phone_number", None)
             if not phone_number:
@@ -596,9 +630,7 @@ class ChallengeResolveMixin:
                 return self.challenge_resolve_simple(challenge_url)
             return True
         elif step_name == "":
-            assert self.last_json.get("action", "") == "close"
-            assert self.last_json.get("status", "") == "ok"
-            return True
+            return self._ensure_challenge_closed("the challenge request")
         elif step_name == "change_password":
             # Example: {'step_name': 'change_password',
             #  'step_data': {'new_password1': 'None', 'new_password2': 'None'},
@@ -641,8 +673,7 @@ class ChallengeResolveMixin:
                 'status': 'ok'
             }
             """
-            steps = self.last_json["step_data"].keys()
-            challenge_url = challenge_url[1:]
+            steps = (self.last_json.get("step_data") or {}).keys()
             choice = ChallengeChoice.EMAIL
             if "email" in steps:
                 choice = ChallengeChoice.EMAIL
@@ -660,8 +691,7 @@ class ChallengeResolveMixin:
             self._send_private_request(challenge_url, {"security_code": code})
 
             if self.last_json.get("action", "") == "close":
-                assert self.last_json.get("status", "") == "ok"
-                return True
+                return self._ensure_challenge_closed("security code submission")
 
             # last form to verify account details
             if self.last_json.get("step_name") != "review_contact_point_change":

@@ -168,12 +168,17 @@ class PrivateRequestMixin:
         super().__init__(*args, **kwargs)
 
     def _build_private_session_retry_strategy(self):
+        # raise_on_status=False: once retries are exhausted, hand the final
+        # 429/5xx response back to _send_private_request so it is mapped to a
+        # typed error (PleaseWaitFewMinutes, ClientThrottledError, ...) instead
+        # of leaking a raw requests.exceptions.RetryError to callers.
         try:
             return Retry(
                 total=self.session_retry_total,
                 status_forcelist=self.session_retry_statuses,
                 allowed_methods=["GET", "POST"],
                 backoff_factor=self.session_retry_backoff_factor,
+                raise_on_status=False,
             )
         except TypeError:
             return Retry(
@@ -181,6 +186,7 @@ class PrivateRequestMixin:
                 status_forcelist=self.session_retry_statuses,
                 method_whitelist=["GET", "POST"],
                 backoff_factor=self.session_retry_backoff_factor,
+                raise_on_status=False,
             )
 
     def _configure_private_session_retry(self):

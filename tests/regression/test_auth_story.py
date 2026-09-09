@@ -493,6 +493,56 @@ class AuthAndStoryRegressionTestCase(unittest.TestCase):
 
         client.bloks_caa_login.assert_called_once_with(verification_code="654321")
 
+    def test_login_bad_password_surfaces_caa_throttling_instead_of_bad_password(self):
+        """A 429 from the CAA fallback is the actionable error (back off); it must not be
+        masked by the misleading legacy bad_password message (subzeroid/instagrapi#2778)."""
+        client = Client()
+        client.username = "example"
+        client.password = "password"
+        client.authorization_data = {}
+        client.last_json = {
+            "message": "We can send you an email to help you get back into your account.",
+            "error_type": "bad_password",
+        }
+        client.pre_login_flow = Mock(return_value=True)
+        client.password_encrypt = Mock(return_value="enc-password")
+        original = BadPassword("Bad Password", response=Mock(status_code=400))
+        client.private_request = Mock(side_effect=original)
+        for throttle in (
+            ClientThrottledError("429 Client Error", response=Mock(status_code=429)),
+            PleaseWaitFewMinutes("Please wait a few minutes before you try again.", response=Mock(status_code=429)),
+        ):
+            with self.subTest(throttle=type(throttle).__name__):
+                client.bloks_caa_login = Mock(side_effect=throttle)
+
+                with self.assertRaises(type(throttle)) as raised:
+                    client.login()
+
+                self.assertIs(raised.exception, throttle)
+                self.assertIs(raised.exception.__cause__, original)
+
+    def test_login_bad_password_restores_login_response_when_caa_fallback_fails(self):
+        client = Client()
+        client.username = "example"
+        client.password = "password"
+        client.authorization_data = {}
+        login_json = {"message": "The password you entered is incorrect.", "error_type": "bad_password"}
+        client.last_json = dict(login_json)
+        client.pre_login_flow = Mock(return_value=True)
+        client.password_encrypt = Mock(return_value="enc-password")
+        client.private_request = Mock(side_effect=BadPassword("Bad Password", response=Mock(status_code=400)))
+
+        def caa_login(**kwargs):
+            client.last_json = {}  # e.g. an empty text/plain 429 body
+            raise ClientNotFoundError("Payload returned is null", response=Mock(status_code=404))
+
+        client.bloks_caa_login = Mock(side_effect=caa_login)
+
+        with self.assertRaises(BadPassword):
+            client.login()
+
+        self.assertEqual(client.last_json, login_json)
+
     def test_caa_profile_code_error_is_not_replaced_with_legacy_bad_password(self):
         client = Client()
         original = BadPassword("Bad Password", response=Mock(status_code=400))

@@ -541,6 +541,12 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
             outcome = self.bloks_caa_login(verification_code=verification_code)
         except (ChallengeError, TwoFactorRequired):
             raise
+        except (PleaseWaitFewMinutes, ClientThrottledError) as caa_exc:
+            # Instagram is rate limiting this device/IP. Re-raising the legacy
+            # "bad password" error here would hide the real cause and invite
+            # further retries; surface the throttle and keep the original as cause.
+            self.logger.warning("CAA login fallback throttled: %s", caa_exc)
+            raise caa_exc from exc
         except ClientError as caa_exc:
             self.logger.warning("CAA login fallback failed: %s", caa_exc)
             return False
@@ -797,6 +803,9 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
             if not context:
                 logged = self._try_caa_login(exc, verification_code=verification_code)
                 if not logged:
+                    # The CAA attempt overwrote last_json; restore the original
+                    # accounts/login/ response so callers can inspect what failed.
+                    self.last_json = login_json
                     raise
             elif not verification_code.strip():
                 raise TwoFactorRequired(

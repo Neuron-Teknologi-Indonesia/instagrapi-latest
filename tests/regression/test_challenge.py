@@ -109,6 +109,200 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         client._send_private_request.assert_not_called()
         client.challenge_resolve_simple.assert_not_called()
 
+    def test_native_flow_numeric_challenge_is_resolved_with_code_handler(self):
+        """Regression for subzeroid/instagrapi#2778.
+
+        Instagram sets ``native_flow: true`` on every mobile checkpoint, including
+        the ordinary ``/challenge/{user_id}/{nonce}/`` flow that exposes
+        select_verify_method -> verify_email. The fail-fast added for opaque
+        checkpoints must not swallow these; challenge_code_handler must run.
+        """
+        client = Client()
+        client.username = "example"
+        client.uuid = "uuid-1"
+        client.android_device_id = "android-1"
+        last_json = {
+            "message": "challenge_required",
+            "challenge": {
+                "url": "https://i.instagram.com/challenge/7536877086/C5B3T4qlLZ/",
+                "api_path": "/challenge/7536877086/C5B3T4qlLZ/",
+                "hide_webview_header": True,
+                "lock": True,
+                "logout": False,
+                "native_flow": True,
+            },
+            "status": "fail",
+            "error_type": "checkpoint_challenge_required",
+        }
+        responses = iter(
+            [
+                {
+                    "step_name": "select_verify_method",
+                    "step_data": {"choice": "1", "email": "e***@example.com"},
+                    "nonce_code": "C5B3T4qlLZ",
+                    "user_id": 7536877086,
+                    "status": "ok",
+                },
+                {"step_name": "verify_email", "step_data": {"contact_point": "e***@example.com"}, "status": "ok"},
+                {"action": "close", "status": "ok"},
+            ]
+        )
+
+        def fake_send(endpoint, data=None, params=None, **kwargs):
+            client.last_json = next(responses)
+            return client.last_json
+
+        handler = Mock(return_value="123456")
+        client.challenge_code_handler = handler
+        with mock.patch.object(client, "_send_private_request", side_effect=fake_send) as send:
+            with mock.patch("builtins.print"):
+                result = client.challenge_resolve(last_json)
+
+        self.assertTrue(result)
+        handler.assert_called_once_with("example", ChallengeChoice.EMAIL)
+        self.assertEqual(send.call_count, 3)
+        self.assertEqual(send.call_args_list[0].args[0], "challenge/7536877086/C5B3T4qlLZ/")
+        self.assertEqual(
+            send.call_args_list[0].kwargs["params"]["challenge_context"],
+            '{"step_name": "", "nonce_code": "C5B3T4qlLZ", "user_id": 7536877086, "is_stateless": false}',
+        )
+        self.assertEqual(send.call_args_list[1].args, ("challenge/7536877086/C5B3T4qlLZ/", {"choice": "1"}))
+        self.assertEqual(send.call_args_list[2].args, ("challenge/7536877086/C5B3T4qlLZ/", {"security_code": "123456"}))
+
+    def test_challenge_required_native_flow_numeric_path_message_mentions_handlers(self):
+        error = ChallengeRequired(
+            message="challenge_required",
+            challenge={"api_path": "/challenge/7536877086/C5B3T4qlLZ/", "native_flow": True},
+            status="fail",
+        )
+
+        self.assertIn("legacy challenge flow", str(error))
+        self.assertNotIn("not handled by challenge_code_handler", str(error))
+
+    def test_is_opaque_native_challenge_classifies_known_payload_shapes(self):
+        from instagrapi.exceptions import is_opaque_native_challenge
+
+        opaque_context = "Q9y1BQFBLJfHfTspRC1e_hDAICJ_cB3aKCsZfpawh5ruxLS7zr-jnA4NpZ6EjKr7g_CBOA06DCmg5mNw"
+        json_context = '{"step_name": "", "cni": 18226879502000588, "is_stateless": false}'
+        cases = [
+            ({"api_path": "/challenge/7536877086/C5B3T4qlLZ/", "native_flow": True}, False),
+            ({"api_path": "/api/v1/challenge/7536877086/C5B3T4qlLZ/", "native_flow": True}, False),
+            ({"api_path": "/challenge/", "native_flow": True, "challenge_context": json_context}, False),
+            ({"api_path": "/challenge/", "native_flow": True}, False),
+            (
+                {
+                    "api_path": "/challenge/AXJdIfyDxs/Af134doLlM/",
+                    "native_flow": True,
+                    "challenge_context": opaque_context,
+                },
+                True,
+            ),
+            ({"api_path": "/challenge/AXJdIfyDxs/Af134doLlM/", "native_flow": True}, True),
+            ({"api_path": "/challenge/", "native_flow": True, "challenge_context": opaque_context}, True),
+            ({"api_path": "/challenge/AXJdIfyDxs/Af134doLlM/", "native_flow": False}, False),
+            ({"api_path": "/auth_platform/?apc=token", "native_flow": True}, False),
+            ("not-a-dict", False),
+        ]
+        for challenge, expected in cases:
+            with self.subTest(challenge=challenge):
+                self.assertIs(is_opaque_native_challenge(challenge), expected)
+
+    def test_challenge_resolve_without_api_path_raises_challenge_required_not_key_error(self):
+        client = Client()
+
+        for payload in ({}, {"message": "challenge_required", "status": "fail"}):
+            with self.subTest(payload=payload):
+                with mock.patch.object(client, "_send_private_request") as send:
+                    with self.assertRaises(ChallengeRequired) as cm:
+                        client.challenge_resolve(payload)
+                self.assertIn("did not return a challenge api_path", str(cm.exception))
+                send.assert_not_called()
+
+    def test_private_request_masked_404_challenge_raises_challenge_required(self):
+        client = Client()
+        response = requests.Response()
+        response.status_code = 404
+        response._content = b"Not Found"
+        response.url = "https://i.instagram.com/api/v1/media/1/comments/"
+        response.request = requests.Request("GET", response.url).prepare()
+
+        with mock.patch.object(client.private, "get", return_value=response):
+            with mock.patch("instagrapi.mixins.private.time.sleep"):
+                with self.assertRaises(ChallengeRequired):
+                    client.private_request("media/1/comments/")
+
+    def test_challenge_resolve_keeps_server_context_for_stateless_challenge_path(self):
+        client = Client()
+        client.uuid = "uuid-1"
+        client.android_device_id = "android-1"
+        context = (
+            '{"step_name": "", "cni": 18226879502000588, "is_stateless": false, "challenge_type_enum": "HACKED_LOCK"}'
+        )
+        last_json = {
+            "message": "challenge_required",
+            "challenge": {
+                "url": "https://i.instagram.com/challenge/?next=/api/v1/accounts/login/",
+                "api_path": "/challenge/",
+                "native_flow": True,
+                "flow_render_type": 0,
+                "challenge_context": context,
+            },
+            "status": "fail",
+        }
+
+        with mock.patch.object(client, "_send_private_request") as send_request:
+            with mock.patch.object(client, "challenge_resolve_simple", return_value=True):
+                result = client.challenge_resolve(last_json)
+
+        self.assertTrue(result)
+        self.assertEqual(send_request.call_args.args[0], "challenge/")
+        self.assertEqual(
+            send_request.call_args.kwargs["params"],
+            {"guid": "uuid-1", "device_id": "android-1", "challenge_context": context},
+        )
+
+    def test_challenge_resolve_reraises_when_get_fails_without_challenge_required_message(self):
+        client = Client()
+        client.last_json = {}
+        last_json = {
+            "message": "challenge_required",
+            "challenge": {"api_path": "/challenge/12345/nonce-code/"},
+            "status": "fail",
+        }
+
+        with mock.patch.object(client, "_send_private_request", side_effect=ChallengeRequired("masked")):
+            with mock.patch.object(client, "challenge_resolve_contact_form") as contact_form:
+                with self.assertRaises(ChallengeRequired):
+                    client.challenge_resolve(last_json)
+
+        contact_form.assert_not_called()
+
+    def test_challenge_resolve_simple_raises_typed_error_when_code_step_does_not_close(self):
+        client = Client()
+        client.username = "example"
+        client.last_json = {
+            "step_name": "verify_email",
+            "step_data": {"contact_point": "e***@example.com"},
+            "status": "ok",
+        }
+
+        def fake_send_private_request(endpoint, data=None, **kwargs):
+            client.last_json = {
+                "step_name": "verify_email",
+                "errors": ["Please check the code we sent you and try again."],
+                "status": "ok",
+            }
+
+        client._send_private_request = Mock(side_effect=fake_send_private_request)
+        client.challenge_code_or_raised = Mock(return_value="000000")
+
+        with self.assertRaises(ChallengeError) as cm:
+            client.challenge_resolve_simple("/challenge/test/")
+
+        self.assertNotIsInstance(cm.exception, AssertionError)
+        self.assertIn("did not close after security code submission", str(cm.exception))
+        self.assertIn("Please check the code", str(cm.exception))
+
     def test_challenge_resolve_simple_fails_fast_when_handler_has_no_code(self):
         client = Client()
         client.username = "example"
@@ -188,7 +382,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         result = client.challenge_resolve_simple("/challenge/test/")
 
         self.assertTrue(result)
-        client._send_private_request.assert_called_once_with("/challenge/test/", {"choice": "0"})
+        # The leading slash is stripped so _send_private_request targets /api/v1/challenge/...
+        client._send_private_request.assert_called_once_with("challenge/test/", {"choice": "0"})
 
     def test_challenge_resolve_simple_bloks_redirect_step_acknowledges_context(self):
         client = Client()
@@ -599,7 +794,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual(
             client._send_private_request.call_args_list[0].args,
-            ("/challenge/test/", {"phone_number": "+15551234567"}),
+            ("challenge/test/", {"phone_number": "+15551234567"}),
         )
         client.challenge_code_or_raised.assert_called_once_with(
             ChallengeChoice.SMS,
@@ -608,7 +803,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         )
         self.assertEqual(
             client._send_private_request.call_args_list[1].args,
-            ("/challenge/test/", {"security_code": "123456"}),
+            ("challenge/test/", {"security_code": "123456"}),
         )
 
     def test_challenge_resolve_simple_submit_phone_requires_configured_phone_number(self):
