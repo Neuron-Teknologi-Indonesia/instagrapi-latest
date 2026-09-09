@@ -1,3 +1,52 @@
+import json
+
+CHALLENGE_API_PATH_PREFIXES = ("/challenge/", "/api/challenge/", "/api/v1/challenge/")
+
+
+def challenge_path_segments(api_path: str) -> list:
+    """Return the path segments that follow ``/challenge/`` in a challenge api_path.
+
+    ``/challenge/12345/AbCdEf/`` -> ``["12345", "AbCdEf"]``; ``/challenge/`` -> ``[]``.
+    Query strings are ignored. Paths that do not point at a challenge return ``[]``.
+    """
+    path = str(api_path or "").split("?", 1)[0]
+    for prefix in CHALLENGE_API_PATH_PREFIXES:
+        if path.startswith(prefix):
+            return [segment for segment in path[len(prefix) :].split("/") if segment]
+    return []
+
+
+def is_opaque_native_challenge(challenge, api_path: str = "") -> bool:
+    """Return whether a ``challenge_required`` payload is an opaque native checkpoint.
+
+    Instagram sets ``challenge.native_flow=true`` on virtually every mobile API
+    checkpoint, including the ordinary ``/challenge/{user_id}/{nonce}/`` flows that
+    expose ``select_verify_method`` / ``verify_email`` steps and can be resolved with
+    ``challenge_code_handler``. Only checkpoints whose path segments are encrypted
+    tokens (non-numeric user id) and whose ``challenge_context`` is not JSON are
+    opaque; those cannot be driven by the legacy resolver and need manual approval.
+    """
+    if not isinstance(challenge, dict) or not challenge.get("native_flow"):
+        return False
+    api_path = str(api_path or challenge.get("api_path") or "")
+    if not api_path.startswith(CHALLENGE_API_PATH_PREFIXES):
+        return False
+    segments = challenge_path_segments(api_path)
+    if segments and segments[0].isdigit():
+        # Legacy numeric user_id/nonce path: resolvable through the step_name flow.
+        return False
+    context = challenge.get("challenge_context")
+    if isinstance(context, str) and context.strip():
+        try:
+            json.loads(context)
+        except ValueError:
+            return True  # encrypted/opaque context
+        return False  # JSON context carries step_name and is resolvable
+    # No context: encrypted path segments are opaque, a bare /challenge/ is not
+    # known to be opaque until it is requested.
+    return bool(segments)
+
+
 class ClientError(Exception):
     response = None
     code = None
@@ -141,7 +190,6 @@ class ChallengeRequired(ChallengeError):
         step_name = data.get("step_name")
         bloks_action = data.get("bloks_action")
         challenge = data.get("challenge")
-        native_flow = isinstance(challenge, dict) and bool(challenge.get("native_flow"))
 
         if api_path.startswith("/auth_platform/") or api_path.startswith("auth_platform/"):
             return (
@@ -157,14 +205,14 @@ class ChallengeRequired(ChallengeError):
                 "If you keep the same client instance alive, call challenge_bloks_redirect_dismiss() after approval; "
                 "otherwise retry with the same saved client settings, device identifiers, and proxy/IP."
             )
-        if native_flow and api_path.startswith(("/challenge/", "/api/challenge/", "/api/v1/challenge/")):
+        if is_opaque_native_challenge(challenge, api_path):
             return (
                 "Manual verification required via Instagram native challenge flow. "
                 "This checkpoint is not handled by challenge_code_handler or change_password_handler; "
                 "complete it in the official Instagram app or web flow on a trusted device. "
                 "Retry with the same saved client settings, device identifiers, and proxy/IP."
             )
-        if api_path.startswith(("/challenge/", "/api/challenge/", "/api/v1/challenge/")):
+        if api_path.startswith(CHALLENGE_API_PATH_PREFIXES):
             return (
                 "Instagram returned a legacy challenge flow. Configure challenge_code_handler or "
                 "change_password_handler for supported email/SMS/password steps, or complete the checkpoint manually. "

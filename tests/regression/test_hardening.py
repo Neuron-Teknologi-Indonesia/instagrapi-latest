@@ -108,6 +108,69 @@ class HardeningRegressionTestCase(unittest.TestCase):
             with self.assertRaises(ClientUnauthorizedError):
                 client._send_private_request("test/")
 
+    # --- private session retry: exhausted 429/5xx must map to typed errors ---
+
+    def test_private_session_retry_returns_final_response_instead_of_raising(self):
+        client = Client()
+
+        retry = client._build_private_session_retry_strategy()
+
+        self.assertFalse(retry.raise_on_status)
+        for adapter in set(client.private.adapters.values()):
+            self.assertFalse(adapter.max_retries.raise_on_status)
+
+    def test_private_session_hands_back_final_429_after_retries_are_exhausted(self):
+        """With raise_on_status=True urllib3 raised MaxRetryError -> requests.RetryError,
+        which _send_private_request does not catch. The adapter must instead hand the
+        final 429 back so it can be mapped to a typed error."""
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        body = b'{"message": "Please wait a few minutes before you try again.", "status": "fail"}'
+
+        class Handler(BaseHTTPRequestHandler):
+            hits = 0
+
+            def do_POST(self):
+                type(self).hits += 1
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                self.send_response(429)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Retry-After", "0")
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format, *args):
+                return
+
+        client = Client(session_retry_total=2, session_retry_backoff_factor=0)
+        client.private.trust_env = False
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            response = client.private.post(f"http://127.0.0.1:{server.server_port}/retry", data={"a": "b"}, timeout=5)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(Handler.hits, 3)
+
+    def test_send_private_request_maps_final_429_to_please_wait_few_minutes(self):
+        client = self._build_private_client()
+        response = self._make_http_error_response(
+            429,
+            json_body={"message": "Please wait a few minutes before you try again.", "status": "fail"},
+        )
+
+        with mock.patch.object(client.private, "post", return_value=response):
+            with mock.patch("instagrapi.mixins.private.time.sleep"):
+                with self.assertRaises(PleaseWaitFewMinutes):
+                    client._send_private_request("accounts/login/", data={"username": "example"}, login=True)
+
     def test_send_private_request_preserves_bad_password_message_with_login_context_hint(self):
         client = self._build_private_client()
         raw_message = "The password you entered is incorrect. Please try again."
