@@ -896,36 +896,51 @@ class BloksMixin:
         """Extract the context token chained to an exact Bloks app id."""
         strings: List[str] = []
         self._bloks_collect_strings(result, strings)
-        anchor = re.compile(re.escape(app_id) + r"(?![_a-zA-Z])")
+        # Do not treat code_entry as a prefix of code_entry_help / code_entry_async.
+        anchor = re.compile(re.escape(app_id) + r"(?![_a-zA-Z0-9])")
         app_reference = re.compile(r"(?<![_a-zA-Z0-9])com\.bloks\.[_a-zA-Z0-9.]+")
+
+        def _is_related_app(other: str) -> bool:
+            return other == app_id or other.startswith(app_id + "_") or other.endswith("_help")
+
+        def _context_from_map(expression: str) -> str:
+            groups: List[List[str]] = []
+            cursor = 0
+            while True:
+                group_start = expression.find("(dkc", cursor)
+                if group_start < 0:
+                    break
+                group = self._bloks_parenthesized_expression(expression, group_start)
+                if not group:
+                    break
+                groups.append(self._bloks_string_literals(group))
+                cursor = group_start + len(group)
+            for keys, values in zip(groups, groups[1:]):
+                if "context_data" not in keys:
+                    continue
+                context_index = keys.index("context_data")
+                if context_index < len(values):
+                    return values[context_index]
+            return ""
+
         for text in strings:
             for found in anchor.finditer(text):
-                map_start = text.find("(f4i", found.end())
-                if map_start < 0:
-                    continue
-                next_app = app_reference.search(text, found.end())
-                if next_app and next_app.start() < map_start:
-                    continue
-                expression = self._bloks_parenthesized_expression(text, map_start)
-                if not expression:
-                    continue
-                groups: List[List[str]] = []
-                cursor = 0
+                cursor = found.end()
                 while True:
-                    group_start = expression.find("(dkc", cursor)
-                    if group_start < 0:
+                    map_start = text.find("(f4i", cursor)
+                    if map_start < 0:
                         break
-                    group = self._bloks_parenthesized_expression(expression, group_start)
-                    if not group:
+                    between = [
+                        app for app in app_reference.findall(text[found.end() : map_start]) if not _is_related_app(app)
+                    ]
+                    if between:
                         break
-                    groups.append(self._bloks_string_literals(group))
-                    cursor = group_start + len(group)
-                for keys, values in zip(groups, groups[1:]):
-                    if "context_data" not in keys:
-                        continue
-                    context_index = keys.index("context_data")
-                    if context_index < len(values):
-                        return values[context_index]
+                    expression = self._bloks_parenthesized_expression(text, map_start)
+                    if expression:
+                        context = _context_from_map(expression)
+                        if context:
+                            return context
+                    cursor = map_start + 4
         return ""
 
     def bloks_ap_two_step_verification_entrypoint(

@@ -840,6 +840,24 @@ class CaaVerifyProfileRegressionTestCase(unittest.TestCase):
 
         self.assertEqual(client.bloks_extract_context_data(result, self.CODE_ENTRY), expected)
 
+    def test_context_extraction_reads_nested_map_after_help_app(self):
+        client = self.build_client()
+        result = {
+            "layout": {
+                "bloks_payload": {
+                    "action": (
+                        f'"{self.CODE_ENTRY}" '
+                        f'"{self.CODE_ENTRY}_help" (f4i (dkc "title") (dkc "Help")) '
+                        '(f6m 6 "params" (fma (f4i (dkc "server_params" "client_input_params") '
+                        '(dkc (f4i (dkc "context_data" "device_id" "INTERNAL_INFRA_screen_id") '
+                        '(dkc "nested-context" "device" "generic_code_entry")) (f4i)))))'
+                    )
+                }
+            }
+        }
+
+        self.assertEqual(client.bloks_extract_context_data(result, self.CODE_ENTRY), "nested-context")
+
     def test_context_extraction_does_not_use_a_later_apps_map(self):
         client = self.build_client()
         result = {
