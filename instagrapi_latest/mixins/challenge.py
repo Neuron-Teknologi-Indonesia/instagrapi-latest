@@ -188,16 +188,6 @@ class ChallengeResolveMixin:
                 "This challenge is not yet supported automatically."
             )
             raise ChallengeRequired(**last_json)
-        if is_opaque_native_challenge(challenge, challenge_url):
-            error_context = dict(last_json)
-            error_context["message"] = "challenge_required"
-            raise ChallengeRequired(
-                "Manual verification required via Instagram native challenge flow. "
-                "This checkpoint is not handled by challenge_code_handler or change_password_handler; "
-                "complete it in the official Instagram app or web flow on a trusted device. "
-                "Retry with the same saved client settings, device identifiers, and proxy/IP.",
-                **error_context,
-            )
         segments = challenge_path_segments(challenge_url)
         challenge_context = challenge.get("challenge_context")
         if not challenge_context and len(segments) >= 2 and segments[0].isdigit():

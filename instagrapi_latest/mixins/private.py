@@ -732,5 +732,14 @@ class PrivateRequestMixin:
             if login and self.user_id:
                 # After challenge resolve return last_json
                 return self.last_json
-            return self._send_private_request(endpoint, **kwargs)
+            # Re-enter private_request so a post-resolve login retry can handle
+            # another challenge_required (common after Bloks redirect close).
+            retries = getattr(self, "_challenge_retry_depth", 0)
+            if retries >= 3:
+                raise e
+            self._challenge_retry_depth = retries + 1
+            try:
+                return self.private_request(endpoint, **kwargs)
+            finally:
+                self._challenge_retry_depth = retries
         return self.last_json

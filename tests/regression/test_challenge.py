@@ -88,8 +88,15 @@ class ChallengeRegressionTestCase(unittest.TestCase):
 
         self.assertIn("Manual verification required", str(cm.exception))
 
-    def test_native_flow_opaque_challenge_fails_fast_before_legacy_resolve(self):
+    def test_native_flow_opaque_challenge_requests_step_then_resolves(self):
+        """Opaque /challenge/ tokens still identify a checkpoint; GET it.
+
+        Instagram often answers with a Bloks redirect or another handled step.
+        Fail-fast only hid that path and blocked login (#2778 / live opaque payloads).
+        """
         client = Client()
+        client.uuid = "uuid-1"
+        client.android_device_id = "android-1"
         last_json = {
             "message": "challenge_required",
             "challenge": {
@@ -102,12 +109,16 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         client._send_private_request = Mock()
         client.challenge_resolve_simple = Mock(return_value=True)
 
-        with self.assertRaises(ChallengeRequired) as cm:
-            client.challenge_resolve(last_json)
+        result = client.challenge_resolve(last_json)
 
-        self.assertIn("native challenge flow", str(cm.exception))
-        client._send_private_request.assert_not_called()
-        client.challenge_resolve_simple.assert_not_called()
+        self.assertTrue(result)
+        client._send_private_request.assert_called_once()
+        self.assertEqual(client._send_private_request.call_args.args[0], "challenge/opaque-user/opaque-nonce/")
+        self.assertEqual(
+            client._send_private_request.call_args.kwargs["params"]["challenge_context"],
+            "opaque-context",
+        )
+        client.challenge_resolve_simple.assert_called_once_with("/challenge/opaque-user/opaque-nonce/")
 
     def test_native_flow_numeric_challenge_is_resolved_with_code_handler(self):
         """Regression for subzeroid/instagrapi#2778.
