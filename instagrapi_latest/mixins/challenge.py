@@ -213,6 +213,18 @@ class ChallengeResolveMixin:
         except ChallengeRequired:
             if self.last_json.get("message") != "challenge_required":
                 raise
+            if is_opaque_native_challenge(self.last_json.get("challenge") or challenge, challenge_url):
+                # Encrypted native paths are not the HTML contact-point form.
+                # Posting to them returns empty/non-JSON bodies.
+                error_context = dict(self.last_json)
+                error_context["message"] = "challenge_required"
+                raise ChallengeRequired(
+                    "Manual verification required via Instagram native challenge flow. "
+                    "This checkpoint is not handled by challenge_code_handler or change_password_handler; "
+                    "complete it in the official Instagram app or web flow on a trusted device. "
+                    "Retry with the same saved client settings, device identifiers, and proxy/IP.",
+                    **error_context,
+                )
             return self.challenge_resolve_contact_form(challenge_url)
         return self.challenge_resolve_simple(challenge_url)
 
@@ -299,7 +311,13 @@ class ChallengeResolveMixin:
         time.sleep(WAIT_SECONDS)
         choice = ChallengeChoice.EMAIL
         result = session.post(challenge_url, {"choice": choice.value})
-        result = result.json()
+        try:
+            result = result.json()
+        except ValueError as exc:
+            raise ChallengeError(
+                "Contact-form challenge POST did not return JSON. "
+                "This endpoint is probably not the HTML recovery form; complete the checkpoint manually."
+            ) from exc
         for retry in range(8):
             time.sleep(WAIT_SECONDS)
             try:
