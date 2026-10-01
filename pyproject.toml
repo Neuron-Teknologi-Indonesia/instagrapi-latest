@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "instagrapi"
+name = "instagrapi-latest"
 version = "3.0.16"
 authors = [
     {name = "Mark Subzeroid", email = "143403577+subzeroid@users.noreply.github.com"}
@@ -52,11 +52,11 @@ keywords = [
 ]
 dependencies = [
     "curl_cffi>=0.15.0",
-    "requests>=2.34.2,<3",
+    "requests>=2.32.5,<3",
     "PySocks>=1.7.1,<2",
-    "pydantic==2.12.5; sys_platform == 'android'",
-    "pydantic>=2.12.5,<2.14; sys_platform != 'android'",
-    "Pillow>=12.2.0,<13",
+    "pydantic==2.12.4; sys_platform == 'android'",
+    "pydantic>=2.12.4,<2.14; sys_platform != 'android'",
+    "Pillow>=10.2.0,<13",
     "pycryptodomex>=3.23.0,<4",
 ]
 
@@ -109,7 +109,7 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["instagrapi*"]
+include = ["instagrapi_latest*"]
 
 [tool.ruff]
 line-length = 120

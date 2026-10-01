@@ -3,8 +3,8 @@ import unittest
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
-from instagrapi import Client, config
-from instagrapi.exceptions import (
+from instagrapi_latest import Client, config
+from instagrapi_latest.exceptions import (
     BadCredentials,
     BadPassword,
     ChallengeError,

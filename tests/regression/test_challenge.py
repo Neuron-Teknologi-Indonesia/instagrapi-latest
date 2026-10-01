@@ -1,4 +1,4 @@
-from instagrapi.mixins.challenge import ChallengeChoice
+from instagrapi_latest.mixins.challenge import ChallengeChoice
 from tests.helpers import *
 
 

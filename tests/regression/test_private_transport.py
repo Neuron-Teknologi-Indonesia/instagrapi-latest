@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 from requests.adapters import HTTPAdapter
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 
 def test_explicit_requests_transport_does_not_import_curl(monkeypatch):

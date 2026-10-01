@@ -2,8 +2,8 @@ import os
 from time import sleep
 from typing import Dict, List
 
-from instagrapi import Client
-from instagrapi.types import UserShort
+from instagrapi_latest import Client
+from instagrapi_latest.types import UserShort
 
 IG_USERNAME = ""
 IG_PASSWORD = ""

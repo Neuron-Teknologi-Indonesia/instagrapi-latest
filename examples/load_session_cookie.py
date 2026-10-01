@@ -16,7 +16,7 @@ Subsequent runs use saved session, fallback to browser if expired.
 import os
 import sys
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 COOKIE_SESSION_FILE = "cookie_session.json"
 

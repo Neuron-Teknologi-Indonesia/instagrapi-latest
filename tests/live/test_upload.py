@@ -1,6 +1,6 @@
 import io
 
-from instagrapi.exceptions import (
+from instagrapi_latest.exceptions import (
     ClientNotFoundError,
     ClipConfigureError,
     ClipNotUpload,

@@ -4,8 +4,8 @@ from unittest import mock
 import pytest
 import requests
 
-from instagrapi import Client
-from instagrapi.mixins.user import UserMixin
+from instagrapi_latest import Client
+from instagrapi_latest.mixins.user import UserMixin
 
 
 @pytest.fixture(params=[{}, {"request_timeout": 0}, {"request_timeout": 7}], ids=["default", "zero", "custom"])

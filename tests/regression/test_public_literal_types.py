@@ -4,19 +4,19 @@ from inspect import signature
 from pathlib import Path
 from typing import Optional, get_args
 
-from instagrapi.mixins import notification as notification_mixins
-from instagrapi.mixins.account import ProfessionalAccountType
-from instagrapi.mixins.clip import UploadClipMixin
-from instagrapi.mixins.direct import BOX, SELECTED_FILTER, SEND_ATTRIBUTE_MEDIA, DirectMediaType, DirectMixin
-from instagrapi.mixins.hashtag import HashtagTab
-from instagrapi.mixins.insights import DATA_ORDERING, POST_TYPE, TIME_FRAME, InsightsMixin
-from instagrapi.mixins.location import LocationTab
-from instagrapi.mixins.note import NoteAudience, NoteMixin
-from instagrapi.mixins.notification import MUTE_ALL, SETTING_VALUE, NotificationContentType, NotificationMixin
-from instagrapi.mixins.public import PublicTransport
-from instagrapi.mixins.track import MUSIC_PRODUCT, TrackMixin
-from instagrapi.mixins.user import FOLLOWERS_ORDER, USER_REPORT_REASON, UserBlockSurface, UserMixin
-from instagrapi.types import StoryResizeMode
+from instagrapi_latest.mixins import notification as notification_mixins
+from instagrapi_latest.mixins.account import ProfessionalAccountType
+from instagrapi_latest.mixins.clip import UploadClipMixin
+from instagrapi_latest.mixins.direct import BOX, SELECTED_FILTER, SEND_ATTRIBUTE_MEDIA, DirectMediaType, DirectMixin
+from instagrapi_latest.mixins.hashtag import HashtagTab
+from instagrapi_latest.mixins.insights import DATA_ORDERING, POST_TYPE, TIME_FRAME, InsightsMixin
+from instagrapi_latest.mixins.location import LocationTab
+from instagrapi_latest.mixins.note import NoteAudience, NoteMixin
+from instagrapi_latest.mixins.notification import MUTE_ALL, SETTING_VALUE, NotificationContentType, NotificationMixin
+from instagrapi_latest.mixins.public import PublicTransport
+from instagrapi_latest.mixins.track import MUSIC_PRODUCT, TrackMixin
+from instagrapi_latest.mixins.user import FOLLOWERS_ORDER, USER_REPORT_REASON, UserBlockSurface, UserMixin
+from instagrapi_latest.types import StoryResizeMode
 
 EXPECTED_NOTIFICATION_CONTENT_TYPES = {
     "mute_all",

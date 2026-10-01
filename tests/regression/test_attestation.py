@@ -6,8 +6,8 @@ from Cryptodome.Hash import SHA256
 from Cryptodome.PublicKey import ECC
 from Cryptodome.Signature import DSS
 
-from instagrapi.mixins.attestation import USDID_REFRESH_MARGIN, USDID_REGISTRATION_CLIENT_DOC_ID
-from instagrapi.mixins.bloks import AP_2SV_ENTRYPOINT
+from instagrapi_latest.mixins.attestation import USDID_REFRESH_MARGIN, USDID_REGISTRATION_CLIENT_DOC_ID
+from instagrapi_latest.mixins.bloks import AP_2SV_ENTRYPOINT
 from tests.helpers import *
 
 

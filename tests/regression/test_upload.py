@@ -4,9 +4,9 @@ from typing import Literal, Union, get_args, get_origin, get_type_hints
 
 from PIL import Image
 
-from instagrapi.exceptions import ClipNotUpload
-from instagrapi.extractors import extract_media_v1
-from instagrapi.types import StoryBuild
+from instagrapi_latest.exceptions import ClipNotUpload
+from instagrapi_latest.extractors import extract_media_v1
+from instagrapi_latest.types import StoryBuild
 from tests.helpers import *
 
 

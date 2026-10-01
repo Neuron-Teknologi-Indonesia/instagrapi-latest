@@ -3,8 +3,8 @@ import unittest
 from copy import deepcopy
 from unittest.mock import Mock
 
-from instagrapi import Client
-from instagrapi.types import User, UserShort
+from instagrapi_latest import Client
+from instagrapi_latest.types import User, UserShort
 
 PROFILE_USER = {
     "id": "123",

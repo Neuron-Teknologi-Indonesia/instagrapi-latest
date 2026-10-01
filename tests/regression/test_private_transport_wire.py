@@ -15,8 +15,8 @@ pytest.importorskip("cryptography")
 
 from curl_cffi import CurlHttpVersion, CurlOpt
 
-from instagrapi import Client
-from instagrapi.exceptions import ClientConnectionError, ClientThrottledError
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import ClientConnectionError, ClientThrottledError
 from tests.http2_server import LAB_HOST, LAB_JSON, LoopbackServer
 
 

@@ -4,7 +4,7 @@ from unittest import mock
 
 from packaging.requirements import Requirement
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 
 def test_default_public_transport_does_not_require_curl_adapter():

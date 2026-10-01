@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Iterable
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 DEFAULT_SESSION_FILE = "ig_settings.json"
 

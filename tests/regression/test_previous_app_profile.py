@@ -1,4 +1,4 @@
-from instagrapi import Client
+from instagrapi_latest import Client
 
 PREVIOUS_APP = "428.0.0.47.67"
 PREVIOUS_CODE = "961145276"

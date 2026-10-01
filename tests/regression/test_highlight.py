@@ -2,8 +2,8 @@ from copy import deepcopy
 
 from pydantic import ValidationError
 
-from instagrapi.extractors import extract_highlight_v1
-from instagrapi.types import UserShort
+from instagrapi_latest.extractors import extract_highlight_v1
+from instagrapi_latest.types import UserShort
 from tests.helpers import *
 
 

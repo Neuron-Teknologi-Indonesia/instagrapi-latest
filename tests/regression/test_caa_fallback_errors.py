@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import pytest
 import requests
 
-from instagrapi import Client
-from instagrapi.exceptions import BadPassword, ClientThrottledError, FeedbackRequired, RateLimitError, UnknownError
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import BadPassword, ClientThrottledError, FeedbackRequired, RateLimitError, UnknownError
 
 LOGIN = "https://i.instagram.com/api/v1/accounts/login/"
 CAA = "https://b.i.instagram.com/api/v1/bloks/async_action/com.bloks.www.bloks.caa.login.async.send_login_request/"

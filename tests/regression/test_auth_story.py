@@ -1,4 +1,4 @@
-from instagrapi.exceptions import BadPassword, ClientNotFoundError, LoginRequired, UnknownError
+from instagrapi_latest.exceptions import BadPassword, ClientNotFoundError, LoginRequired, UnknownError
 from tests.helpers import *
 
 

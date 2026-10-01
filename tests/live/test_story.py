@@ -4,7 +4,7 @@ import queue
 import traceback
 from urllib.parse import parse_qs, urlparse
 
-from instagrapi.types import StoryPoll
+from instagrapi_latest.types import StoryPoll
 from tests import helpers as _helpers
 from tests.helpers import *
 

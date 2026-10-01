@@ -128,7 +128,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         return mock.patch("builtins.__import__", side_effect=blocked_import)
 
     def test_mp4_metadata_parser_reads_dimensions_and_duration(self):
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.utils.video import read_video_metadata
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = self.write_sample_mp4(Path(tmpdir))
@@ -227,7 +227,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
         self.assertIn("--no-deps", message)
 
     def test_prepare_video_reports_video_extra_without_moviepy(self):
-        from instagrapi.image_util import prepare_video
+        from instagrapi_latest.image_util import prepare_video
 
         with self.block_moviepy_imports(ImportError("no moviepy")):
             with self.assertRaises(RuntimeError) as ctx:
@@ -241,8 +241,8 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
     def test_story_builder_photo_generates_video_with_moviepy_2(self):
         from PIL import Image
 
-        from instagrapi.story import StoryBuilder
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.story import StoryBuilder
+        from instagrapi_latest.utils.video import read_video_metadata
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -263,8 +263,8 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
                     os.unlink(build.path)
 
     def test_story_builder_video_fit_generates_canvas_without_cropping(self):
-        from instagrapi.story import StoryBuilder
-        from instagrapi.utils.video import read_video_metadata
+        from instagrapi_latest.story import StoryBuilder
+        from instagrapi_latest.utils.video import read_video_metadata
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -298,7 +298,7 @@ class VideoMetadataRegressionTestCase(unittest.TestCase):
                     os.unlink(build.path)
 
     def test_prepare_video_generates_thumbnail_with_moviepy_2(self):
-        from instagrapi.image_util import prepare_video
+        from instagrapi_latest.image_util import prepare_video
 
         self.assertEqual(importlib.metadata.version("moviepy"), "2.2.1")
         with tempfile.TemporaryDirectory() as tmpdir:

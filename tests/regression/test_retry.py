@@ -9,15 +9,15 @@ from unittest import mock
 import requests
 from requests.exceptions import RetryError
 
-from instagrapi import Client
-from instagrapi.exceptions import (
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import (
     ClientConnectionError,
     ClientError,
     ClientThrottledError,
     PleaseWaitFewMinutes,
 )
-from instagrapi.mixins import private as private_mixin
-from instagrapi.mixins import public as public_mixin
+from instagrapi_latest.mixins import private as private_mixin
+from instagrapi_latest.mixins import public as public_mixin
 from tests.helpers import is_retryable_http_status_error
 
 

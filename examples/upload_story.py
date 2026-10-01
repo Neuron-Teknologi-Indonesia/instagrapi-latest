@@ -5,7 +5,7 @@ from pathlib import Path
 
 from _common import env, make_client
 
-from instagrapi.types import StoryLink
+from instagrapi_latest.types import StoryLink
 
 
 def upload_story(

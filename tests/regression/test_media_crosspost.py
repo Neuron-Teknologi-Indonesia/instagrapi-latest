@@ -6,8 +6,8 @@ import pytest
 import requests
 from pydantic import ValidationError
 
-from instagrapi import Client
-from instagrapi.extractors import extract_media_v1
+from instagrapi_latest import Client
+from instagrapi_latest.extractors import extract_media_v1
 
 
 def media_payload(pk="1"):

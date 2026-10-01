@@ -1,5 +1,5 @@
-from instagrapi.realtime.client import REALTIME_HOST
-from instagrapi.realtime.mqttot import SocketMQTToTTransport
+from instagrapi_latest.realtime.client import REALTIME_HOST
+from instagrapi_latest.realtime.mqttot import SocketMQTToTTransport
 from tests import helpers as _helpers
 from tests.helpers import *
 

@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-import instagrapi
+import instagrapi_latest
 
 
 def test_package_version_matches_pyproject():

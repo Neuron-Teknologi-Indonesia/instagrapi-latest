@@ -1,10 +1,10 @@
-from instagrapi.exceptions import (
+from instagrapi_latest.exceptions import (
     ClientForbiddenError,
     ClientLoginRequired,
     ClientNotFoundError,
     ClientUnauthorizedError,
 )
-from instagrapi.mixins import public as public_mixin
+from instagrapi_latest.mixins import public as public_mixin
 from tests.helpers import *
 
 

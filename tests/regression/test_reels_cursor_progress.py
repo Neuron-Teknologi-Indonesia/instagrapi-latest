@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 
 @pytest.fixture

@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from instagrapi import Client
-from instagrapi.exceptions import ClientGraphqlError
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import ClientGraphqlError
 
 
 class RelatedProfileSessionTestCase(unittest.TestCase):

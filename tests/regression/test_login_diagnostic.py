@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pytest
 import requests
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 SCRIPT = Path(__file__).resolve().parents[2] / "examples" / "diagnose_login.py"
 LOGIN = "https://i.instagram.com/api/v1/accounts/login/"

@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 BODY = '{"status":"ok","title":"café"}'.encode()
 PAYLOAD = {"status": "ok", "title": "café"}

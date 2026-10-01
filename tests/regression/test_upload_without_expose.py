@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from instagrapi.exceptions import ClientNotFoundError
-from instagrapi.types import Media, Story
+from instagrapi_latest.exceptions import ClientNotFoundError
+from instagrapi_latest.types import Media, Story
 from tests.regression import test_upload as upload_tests
 
 UPLOADS = [

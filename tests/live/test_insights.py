@@ -9,8 +9,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
 
-from instagrapi import Client
-from instagrapi.exceptions import MediaError
+from instagrapi_latest import Client
+from instagrapi_latest.exceptions import MediaError
 from tests.helpers import TEST_ACCOUNTS_URL
 
 

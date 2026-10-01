@@ -3,8 +3,8 @@ import os
 import queue
 import traceback
 
-from instagrapi import types as ig_types
-from instagrapi.extractors import extract_user_short
+from instagrapi_latest import types as ig_types
+from instagrapi_latest.extractors import extract_user_short
 from tests import helpers as _helpers
 from tests.helpers import *
 

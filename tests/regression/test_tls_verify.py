@@ -1,6 +1,6 @@
 from unittest import mock
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 
 class _FakeResponse:

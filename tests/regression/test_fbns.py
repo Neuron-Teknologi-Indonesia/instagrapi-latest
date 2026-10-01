@@ -2,10 +2,10 @@ import json
 import zlib
 from unittest import mock
 
-from instagrapi import Client
-from instagrapi.realtime import FbnsClient, FbnsDeviceAuth
-from instagrapi.realtime.fbns import FBNS_HOST, FBNS_SUBSCRIBE_TOPICS, FBNSTopics
-from instagrapi.realtime.mqttot import MQTToTConnection, decode_packet, read_thrift_object, write_publish_packet
+from instagrapi_latest import Client
+from instagrapi_latest.realtime import FbnsClient, FbnsDeviceAuth
+from instagrapi_latest.realtime.fbns import FBNS_HOST, FBNS_SUBSCRIBE_TOPICS, FBNSTopics
+from instagrapi_latest.realtime.mqttot import MQTToTConnection, decode_packet, read_thrift_object, write_publish_packet
 
 
 def _build_logged_in_client():

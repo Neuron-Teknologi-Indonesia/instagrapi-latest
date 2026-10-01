@@ -7,7 +7,7 @@ from pathlib import Path
 
 from _common import env_int, make_client
 
-from instagrapi.exceptions import ClientError
+from instagrapi_latest.exceptions import ClientError
 
 
 def load_state(path: Path) -> dict:

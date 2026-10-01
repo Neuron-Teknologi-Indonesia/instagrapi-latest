@@ -1,4 +1,4 @@
-from instagrapi.types import StoryArchiveDay
+from instagrapi_latest.types import StoryArchiveDay
 from tests.helpers import *
 
 

@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import urlparse
 
-from instagrapi import Client
-from instagrapi.extractors import extract_direct_message
+from instagrapi_latest import Client
+from instagrapi_latest.extractors import extract_direct_message
 
 SESSION_FILE = "session.json"
 

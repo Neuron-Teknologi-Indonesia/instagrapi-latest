@@ -1,7 +1,7 @@
 import os
 
-from instagrapi.realtime.fbns import FBNS_HOST
-from instagrapi.realtime.mqttot import SocketMQTToTTransport
+from instagrapi_latest.realtime.fbns import FBNS_HOST
+from instagrapi_latest.realtime.mqttot import SocketMQTToTTransport
 from tests import helpers as _helpers
 from tests.helpers import *
 

@@ -1,7 +1,7 @@
-from instagrapi import types as ig_types
-from instagrapi.extractors import extract_user_gql, extract_user_short, extract_user_v1
-from instagrapi.mixins.public import PUBLIC_WEB_APP_ID, PUBLIC_WEB_ASBD_ID
-from instagrapi.mixins.user import (
+from instagrapi_latest import types as ig_types
+from instagrapi_latest.extractors import extract_user_gql, extract_user_short, extract_user_v1
+from instagrapi_latest.mixins.public import PUBLIC_WEB_APP_ID, PUBLIC_WEB_ASBD_ID
+from instagrapi_latest.mixins.user import (
     MAX_USER_COUNT,
     USER_INFO_BY_USERNAME_V2_DOC_ID,
     USER_INFO_V2_DOC_ID,
@@ -1134,7 +1134,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         )
 
     def test_chaining_promotes_not_eligible_unknown_error(self):
-        from instagrapi.exceptions import InvalidTargetUser
+        from instagrapi_latest.exceptions import InvalidTargetUser
 
         client = Client()
 
@@ -1369,7 +1369,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         )
 
     def test_user_stream_by_id_v1_promotes_not_found_to_user_not_found(self):
-        from instagrapi.exceptions import ClientNotFoundError, UserNotFound
+        from instagrapi_latest.exceptions import ClientNotFoundError, UserNotFound
 
         client = Client()
         client.last_json = {}
@@ -1382,7 +1382,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
                 client.user_stream_by_id_v1("123")
 
     def test_user_stream_by_id_v1_parses_first_json_line_from_stream_response(self):
-        from instagrapi.exceptions import ClientJSONDecodeError
+        from instagrapi_latest.exceptions import ClientJSONDecodeError
 
         client = Client()
         client.last_json = {}
@@ -1458,7 +1458,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         self.assertEqual(user, {"pk": "9", "username": "alice"})
 
     def test_user_web_profile_info_v1_raises_user_not_found_on_empty_data(self):
-        from instagrapi.exceptions import UserNotFound
+        from instagrapi_latest.exceptions import UserNotFound
 
         client = Client()
         client.last_json = {}
@@ -1745,7 +1745,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         self.assertEqual([u.username for u in users], ["alice", "bob"])
 
     def test_user_related_profiles_gql_raises_user_not_found_on_empty_response(self):
-        from instagrapi.exceptions import UserNotFound
+        from instagrapi_latest.exceptions import UserNotFound
 
         client = Client()
         with mock.patch.object(client, "public_graphql_request", return_value={"user": None}):
@@ -1764,7 +1764,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         self.assertEqual(users, [])
 
     def test_user_related_profiles_gql_raises_when_num_retry_under_threshold(self):
-        from instagrapi.exceptions import RelatedProfileRequired
+        from instagrapi_latest.exceptions import RelatedProfileRequired
 
         client = Client()
         # Opt into retry semantics by setting num_retry < 4.

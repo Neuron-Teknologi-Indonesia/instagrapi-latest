@@ -18,7 +18,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import pytest
 import requests
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 pytestmark = pytest.mark.skipif(
     os.getenv("INSTAGRAPI_RUN_CAA_LIVE") != "1", reason="fresh CAA logins require explicit opt-in"

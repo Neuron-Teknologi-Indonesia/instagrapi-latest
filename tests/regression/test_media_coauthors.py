@@ -1,9 +1,9 @@
 from copy import deepcopy
 from unittest import TestCase, mock
 
-from instagrapi import Client
-from instagrapi.extractors import extract_media_v1
-from instagrapi.types import Media, UserShort
+from instagrapi_latest import Client
+from instagrapi_latest.extractors import extract_media_v1
+from instagrapi_latest.types import Media, UserShort
 
 
 def media_payload():

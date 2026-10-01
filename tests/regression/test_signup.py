@@ -2,9 +2,9 @@ import base64
 
 from Cryptodome.PublicKey import RSA
 
-from instagrapi.exceptions import FeedbackRequired, SignupSpamError
-from instagrapi.mixins.challenge import ChallengeChoice
-from instagrapi.mixins.signup import CHOICE_EMAIL
+from instagrapi_latest.exceptions import FeedbackRequired, SignupSpamError
+from instagrapi_latest.mixins.challenge import ChallengeChoice
+from instagrapi_latest.mixins.signup import CHOICE_EMAIL
 from tests.helpers import *
 from tests.live.test_signup import SignUpTestCase
 

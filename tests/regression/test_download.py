@@ -1,6 +1,6 @@
 import io
 
-from instagrapi.exceptions import ClientForbiddenError, ClientIncompleteReadError
+from instagrapi_latest.exceptions import ClientForbiddenError, ClientIncompleteReadError
 from tests.helpers import *
 
 

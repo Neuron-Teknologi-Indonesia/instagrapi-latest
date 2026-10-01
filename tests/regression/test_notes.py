@@ -1,4 +1,4 @@
-from instagrapi.mixins.note import NoteAudience
+from instagrapi_latest.mixins.note import NoteAudience
 from tests.helpers import *
 
 

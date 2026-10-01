@@ -1,7 +1,7 @@
 from PIL import Image
 
-from instagrapi.exceptions import DirectMessageNotFound
-from instagrapi.extractors import extract_direct_thread
+from instagrapi_latest.exceptions import DirectMessageNotFound
+from instagrapi_latest.extractors import extract_direct_thread
 from tests.helpers import *
 
 

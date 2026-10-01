@@ -23,10 +23,10 @@ from importlib.metadata import version
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from instagrapi import Client
-from instagrapi.config import APP_SETTINGS
-from instagrapi.exceptions import ChallengeRequired
-from instagrapi.mixins.bloks import AP_2SV_ENTRYPOINT
+from instagrapi_latest import Client
+from instagrapi_latest.config import APP_SETTINGS
+from instagrapi_latest.exceptions import ChallengeRequired
+from instagrapi_latest.mixins.bloks import AP_2SV_ENTRYPOINT
 
 ERROR_TYPES = {
     "bad_password",

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 CACHE_NAMES = (
     "_users_cache",

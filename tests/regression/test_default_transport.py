@@ -1,7 +1,7 @@
 import pytest
 
-from instagrapi import Client
-from instagrapi.transports import _CurlH2Adapter
+from instagrapi_latest import Client
+from instagrapi_latest.transports import _CurlH2Adapter
 
 
 @pytest.mark.parametrize(
