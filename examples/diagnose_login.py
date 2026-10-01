@@ -318,7 +318,7 @@ def main(argv=None):
         if not isinstance(settings, dict):
             raise ValueError("Settings must be a JSON object")
         report["environment"] = {
-            "instagrapi": version("instagrapi"),
+            "instagrapi_latest": version("instagrapi_latest"),
             "python": platform.python_version(),
             "os": platform.system(),
             "settings_loaded": settings_path.exists(),

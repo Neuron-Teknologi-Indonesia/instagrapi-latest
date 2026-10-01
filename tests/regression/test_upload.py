@@ -784,8 +784,8 @@ class UploadRegressionTestCase(unittest.TestCase):
         opened.__enter__ = Mock(return_value=Mock(size=(720, 720)))
         opened.__exit__ = Mock(return_value=False)
 
-        with mock.patch("instagrapi.mixins.photo.prepare_image", return_value=(b"photo-bytes", (720, 720))):
-            with mock.patch("instagrapi.mixins.photo.Image.open", return_value=opened):
+        with mock.patch("instagrapi_latest.mixins.photo.prepare_image", return_value=(b"photo-bytes", (720, 720))):
+            with mock.patch("instagrapi_latest.mixins.photo.Image.open", return_value=opened):
                 with mock.patch("random.randint", return_value=1234567890):
                     with mock.patch.object(client.private, "post", return_value=response) as private_post:
                         upload_id, width, height = client.photo_rupload(Path("image.jpg"), upload_id="upload-id")
@@ -2368,7 +2368,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         ok_response = Mock(status_code=200)
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 5),
         ):
             with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2392,7 +2392,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         ok_response = Mock(status_code=200)
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch("time.time", return_value=1778346423.0):
@@ -2474,7 +2474,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         failure.json.return_value = {"message": "media_needs_reupload", "status": "fail"}
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch.object(client.private, "post", return_value=failure):
@@ -2497,7 +2497,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         extra_data = {"share_to_facebook": 1}
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2541,7 +2541,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         }
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2580,7 +2580,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         extra_data = {"disable_comments": "1"}
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2613,7 +2613,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         ok_response = Mock(status_code=200)
 
         with mock.patch(
-            "instagrapi.mixins.clip.analyze_video",
+            "instagrapi_latest.mixins.clip.analyze_video",
             return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
         ):
             with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2720,7 +2720,7 @@ class UploadRegressionTestCase(unittest.TestCase):
 
         with mock.patch.object(client, "clip_share_to_fb_extra_data", return_value=fb_extra) as share_to_fb_extra:
             with mock.patch(
-                "instagrapi.mixins.clip.analyze_video",
+                "instagrapi_latest.mixins.clip.analyze_video",
                 return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
             ) as analyze_video:
                 with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2777,7 +2777,7 @@ class UploadRegressionTestCase(unittest.TestCase):
             return_value=threads_extra,
         ) as share_to_threads_extra:
             with mock.patch(
-                "instagrapi.mixins.clip.analyze_video",
+                "instagrapi_latest.mixins.clip.analyze_video",
                 return_value=(Path("/tmp/thumb.jpg"), 720, 1280, 6.023),
             ):
                 with mock.patch.object(client.private, "get", return_value=ok_response):
@@ -2836,7 +2836,7 @@ class UploadRegressionTestCase(unittest.TestCase):
             fitted = Path(tmpdir) / "fitted.mp4"
             fitted.touch()
             rendered = StoryBuild(path=str(fitted), mentions=[], paths=[], stickers=[])
-            with mock.patch("instagrapi.mixins.video.StoryBuilder") as story_builder:
+            with mock.patch("instagrapi_latest.mixins.video.StoryBuilder") as story_builder:
                 story_builder.return_value.video_fit.return_value = rendered
                 with mock.patch.object(
                     client,
@@ -3170,7 +3170,7 @@ class UploadRegressionTestCase(unittest.TestCase):
             self.assertFalse(video_path.exists())
 
     def test_clip_analyze_video_closes_video_file(self):
-        import instagrapi.mixins.clip as clip_mixin
+        import instagrapi_latest.mixins.clip as clip_mixin
 
         closed = {"value": False}
 
@@ -3197,7 +3197,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         self.assertTrue(closed["value"])
 
     def test_video_analyze_video_closes_video_file_on_save_frame_error(self):
-        import instagrapi.mixins.video as video_mixin
+        import instagrapi_latest.mixins.video as video_mixin
 
         closed = {"value": False}
 
@@ -3227,7 +3227,7 @@ class UploadRegressionTestCase(unittest.TestCase):
         self.assertTrue(closed["value"])
 
     def test_clip_analyze_video_closes_video_file_on_save_frame_error(self):
-        import instagrapi.mixins.clip as clip_mixin
+        import instagrapi_latest.mixins.clip as clip_mixin
 
         closed = {"value": False}
 
@@ -3303,12 +3303,12 @@ class UploadRegressionTestCase(unittest.TestCase):
         self.assertTrue(cropped_image.closed)
 
     def test_clip_crop_thumbnail_closes_source_and_cropped_images(self):
-        import instagrapi.mixins.clip as clip_mixin
+        import instagrapi_latest.mixins.clip as clip_mixin
 
         self._assert_crop_thumbnail_closes_images(clip_mixin)
 
     def test_igtv_crop_thumbnail_closes_source_and_cropped_images(self):
-        import instagrapi.mixins.igtv as igtv_mixin
+        import instagrapi_latest.mixins.igtv as igtv_mixin
 
         self._assert_crop_thumbnail_closes_images(igtv_mixin)
 

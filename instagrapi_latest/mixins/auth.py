@@ -562,6 +562,7 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
 
     def _try_caa_login(self, exc: Exception, verification_code: str = "") -> bool:
         """Try current Android CAA login, propagating actionable login errors."""
+        pre_caa_last_json = self.last_json
         try:
             outcome = self.bloks_caa_login(verification_code=verification_code)
         except (ChallengeError, TwoFactorRequired):
@@ -576,6 +577,9 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
             if not self._is_unavailable_caa_login_error(caa_exc):
                 raise
             self.logger.warning("CAA login fallback failed: %s", caa_exc)
+            # Restore the original accounts/login/ response so callers can
+            # inspect the real failure instead of the CAA transport error.
+            self.last_json = pre_caa_last_json
             return False
         if outcome.get("logged_in"):
             return True
@@ -817,7 +821,22 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
                 "Load settings with override_app_version=True to use the supported app profile, "
                 "or provide the matching Bloks hash."
             )
-        outcome = self.bloks_caa_login(verification_code=verification_code)
+        pre_caa_last_json = self.last_json
+        try:
+            outcome = self.bloks_caa_login(verification_code=verification_code)
+        except ClientError as caa_exc:
+            if not self._is_unavailable_caa_login_error(caa_exc):
+                raise
+            # The CAA endpoint is unavailable for this account (for example a
+            # 404 "Payload returned is null"). Fall back to the legacy accounts
+            # flow and surface its own response instead of masking it with the
+            # CAA transport error.
+            self.last_json = pre_caa_last_json
+            try:
+                return self.login_legacy(verification_code=verification_code)
+            except Exception:
+                self.last_json = pre_caa_last_json
+                raise
         logged = bool(outcome.get("logged_in"))
         if not logged:
             context = self._extract_two_step_verification_context(outcome)

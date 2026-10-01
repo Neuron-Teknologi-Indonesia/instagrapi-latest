@@ -144,7 +144,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        client = Client(session_retry_total=2, session_retry_backoff_factor=0)
+        client = Client(private_transport="requests", session_retry_total=2, session_retry_backoff_factor=0)
         client.private.trust_env = False
         server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -167,7 +167,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
         )
 
         with mock.patch.object(client.private, "post", return_value=response):
-            with mock.patch("instagrapi.mixins.private.time.sleep"):
+            with mock.patch("instagrapi_latest.mixins.private.time.sleep"):
                 with self.assertRaises(PleaseWaitFewMinutes):
                     client._send_private_request("accounts/login/", data={"username": "example"}, login=True)
 
@@ -353,7 +353,7 @@ class HardeningRegressionTestCase(unittest.TestCase):
                 response,
             ],
         ) as private_post:
-            with mock.patch("instagrapi.mixins.private.time.sleep") as sleep:
+            with mock.patch("instagrapi_latest.mixins.private.time.sleep") as sleep:
                 result = client.private_request("test/", data={"_uuid": client.uuid}, with_signature=False)
 
         self.assertEqual(result, {"status": "ok"})

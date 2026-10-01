@@ -13,7 +13,7 @@ def client(monkeypatch):
     client = Client()
     client.logger = Mock()
     monkeypatch.setattr(
-        "instagrapi.mixins.timeline.extract_media_v1", lambda value: SimpleNamespace(pk=str(value["pk"]))
+        "instagrapi_latest.mixins.timeline.extract_media_v1", lambda value: SimpleNamespace(pk=str(value["pk"]))
     )
     return client
 

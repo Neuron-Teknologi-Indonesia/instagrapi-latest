@@ -306,7 +306,7 @@ def test_library_stdout_logs_and_exception_text_are_not_exported(diagnostic, cap
 
     def reject(*args, **kwargs):
         print(output_marker)
-        logging.getLogger("instagrapi").error(output_marker)
+        logging.getLogger("instagrapi_latest").error(output_marker)
         raise RuntimeError(output_marker)
 
     client.login = reject

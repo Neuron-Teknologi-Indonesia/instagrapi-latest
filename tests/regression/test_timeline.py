@@ -127,7 +127,7 @@ class TimelineRegressionTestCase(unittest.TestCase):
         client.private_request = Mock(return_value={"feed_items": []})
         client.set_timezone_offset(0)
 
-        with mock.patch("instagrapi.mixins.auth.time.time", return_value=1778379170.083):
+        with mock.patch("instagrapi_latest.mixins.auth.time.time", return_value=1778379170.083):
             client.get_timeline_feed("cold_start_fetch")
 
         data = json.loads(client.private_request.call_args.args[1])

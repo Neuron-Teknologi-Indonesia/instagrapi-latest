@@ -332,7 +332,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                         return_value={"created_user": {"pk": "1", "username": "example"}},
                     ) as accounts_create:
                         with mock.patch(
-                            "instagrapi.mixins.signup.extract_user_short",
+                            "instagrapi_latest.mixins.signup.extract_user_short",
                             return_value="created-user",
                         ):
                             with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):
@@ -377,7 +377,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                     return_value={"created_user": {"pk": "1", "username": "example"}},
                 ):
                     with mock.patch(
-                        "instagrapi.mixins.signup.extract_user_short",
+                        "instagrapi_latest.mixins.signup.extract_user_short",
                         return_value="created-user",
                     ):
                         with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):
@@ -658,7 +658,7 @@ class SignupHelperRegressionTestCase(unittest.TestCase):
                             ):
                                 with mock.patch.object(client, "challenge_flow", return_value=True) as challenge_flow:
                                     with mock.patch(
-                                        "instagrapi.mixins.signup.extract_user_short",
+                                        "instagrapi_latest.mixins.signup.extract_user_short",
                                         return_value="created-user",
                                     ):
                                         with self.assertWarnsRegex(RuntimeWarning, "legacy account-create flow"):

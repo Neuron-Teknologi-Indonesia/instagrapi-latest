@@ -934,6 +934,25 @@ class BloksMixin:
             index += len(item)
         return items
 
+    @staticmethod
+    def _bloks_string_literals(value: str) -> List[str]:
+        """Decode JSON-style string literals from a Bloks expression."""
+        strings: List[str] = []
+        decoder = json.JSONDecoder()
+        index = 0
+        while True:
+            index = value.find('"', index)
+            if index < 0:
+                return strings
+            try:
+                decoded, consumed = decoder.raw_decode(value[index:])
+            except JSONDecodeError:
+                index += 1
+                continue
+            if isinstance(decoded, str):
+                strings.append(decoded)
+            index += consumed
+
     def bloks_extract_context_data(self, result: Dict, app_id: str) -> str:
         """Extract the context token chained to an exact Bloks app id."""
         strings: List[str] = []

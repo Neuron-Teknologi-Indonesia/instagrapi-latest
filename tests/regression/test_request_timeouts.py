@@ -47,7 +47,7 @@ def test_media_download_uses_read_timeout(client, read_timeout, tmp_path, media_
     response.headers["Content-Length"] = str(len(content))
     response.raw = BytesIO(content)
 
-    with mock.patch(f"instagrapi.mixins.{media_type}.requests.get", return_value=response) as get:
+    with mock.patch(f"instagrapi_latest.mixins.{media_type}.requests.get", return_value=response) as get:
         path = getattr(client, f"{media_type}_download_by_url")(url, filename="download", folder=tmp_path)
 
     assert path == tmp_path / f"download.{extension}"
@@ -64,7 +64,7 @@ def test_media_download_origin_uses_read_timeout(client, read_timeout, media_typ
     response.headers["Content-Length"] = str(len(content))
     response.raw = BytesIO(content)
 
-    with mock.patch(f"instagrapi.mixins.{media_type}.requests.get", return_value=response) as get:
+    with mock.patch(f"instagrapi_latest.mixins.{media_type}.requests.get", return_value=response) as get:
         result = getattr(client, f"{media_type}_download_by_url_origin")(url)
 
     assert result == content
@@ -83,7 +83,7 @@ def test_story_download_uses_read_timeout(client, read_timeout, tmp_path):
 
     with (
         mock.patch.object(client.public, "get", return_value=response) as get,
-        mock.patch("instagrapi.mixins.public.time.sleep") as sleep,
+        mock.patch("instagrapi_latest.mixins.public.time.sleep") as sleep,
     ):
         path = client.story_download_by_url(url, filename="download", folder=tmp_path)
 
@@ -150,7 +150,7 @@ def test_read_timeout_preserves_request_pacing(client, surface):
 
     with (
         mock.patch.object(getattr(client, surface), "get", return_value=response),
-        mock.patch(f"instagrapi.mixins.{surface}.time.sleep") as sleep,
+        mock.patch(f"instagrapi_latest.mixins.{surface}.time.sleep") as sleep,
     ):
         if surface == "public":
             result = client._send_public_request(response.url, return_json=True)

@@ -125,7 +125,7 @@ def test_transport_default_context_requires_tls_1_2():
     context.minimum_version = ssl.TLSVersion.MINIMUM_SUPPORTED
 
     with mock.patch(
-        "instagrapi.realtime.mqttot.ssl.create_default_context",
+        "instagrapi_latest.realtime.mqttot.ssl.create_default_context",
         return_value=context,
     ):
         transport = SocketMQTToTTransport("example.com")
@@ -139,7 +139,7 @@ def test_transport_default_context_preserves_stricter_tls_minimum():
     context.minimum_version = ssl.TLSVersion.TLSv1_3
 
     with mock.patch(
-        "instagrapi.realtime.mqttot.ssl.create_default_context",
+        "instagrapi_latest.realtime.mqttot.ssl.create_default_context",
         return_value=context,
     ):
         transport = SocketMQTToTTransport("example.com")
@@ -152,7 +152,7 @@ def test_transport_does_not_modify_caller_supplied_weak_tls_context():
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.minimum_version = ssl.TLSVersion.MINIMUM_SUPPORTED
 
-    with mock.patch("instagrapi.realtime.mqttot.ssl.create_default_context") as create_context:
+    with mock.patch("instagrapi_latest.realtime.mqttot.ssl.create_default_context") as create_context:
         transport = SocketMQTToTTransport("example.com", tls_context=context)
 
     assert transport.tls_context is context

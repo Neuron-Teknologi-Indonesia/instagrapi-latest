@@ -87,7 +87,7 @@ from instagrapi_latest.types import (
 from instagrapi_latest.utils import dumps, gen_password, generate_jazoest
 from instagrapi_latest.zones import UTC
 
-logger = logging.getLogger("instagrapi.tests")
+logger = logging.getLogger("instagrapi_latest.tests")
 ACCOUNT_USERNAME = os.getenv("IG_USERNAME", "username")
 ACCOUNT_PASSWORD = os.getenv("IG_PASSWORD", "password*")
 ACCOUNT_SESSIONID = os.getenv("IG_SESSIONID", "")

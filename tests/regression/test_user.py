@@ -1508,7 +1508,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
         client.last_json = {"layout": {"bloks_payload": {"data": []}}}
         expected = object()
         with mock.patch.object(client, "bloks_action", return_value={}) as bloks_action:
-            with mock.patch("instagrapi.mixins.user.extract_about_v1", return_value=expected) as extract:
+            with mock.patch("instagrapi_latest.mixins.user.extract_about_v1", return_value=expected) as extract:
                 result = client.user_about_v1("123")
 
         self.assertIs(result, expected)
@@ -1520,7 +1520,7 @@ class UserMixinRegressionTestCase(unittest.TestCase):
     def test_user_guides_v1_extracts_guides(self):
         client = Client()
         with mock.patch.object(client, "private_request", return_value={"guides": [{"summary": {"id": "1"}}]}) as req:
-            with mock.patch("instagrapi.mixins.user.extract_guide_v1", side_effect=lambda item: item["summary"]):
+            with mock.patch("instagrapi_latest.mixins.user.extract_guide_v1", side_effect=lambda item: item["summary"]):
                 guides = client.user_guides_v1("123")
 
         self.assertEqual(guides, [{"id": "1"}])

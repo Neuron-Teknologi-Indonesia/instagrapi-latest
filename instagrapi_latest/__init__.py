@@ -53,10 +53,10 @@ from instagrapi_latest.mixins.video import DownloadVideoMixin, UploadVideoMixin
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # Used as fallback logger if another is not provided.
-DEFAULT_LOGGER = logging.getLogger("instagrapi")
+DEFAULT_LOGGER = logging.getLogger("instagrapi_latest")
 
 try:
-    __version__ = version("instagrapi")
+    __version__ = version("instagrapi_latest")
 except PackageNotFoundError:
     __version__ = "0.0.0"
 

@@ -570,8 +570,9 @@ class AuthAndStoryRegressionTestCase(unittest.TestCase):
                 with self.assertRaises(type(throttle)) as raised:
                     client.login()
 
+                # CAA-first login surfaces throttling directly; there is no
+                # preceding legacy attempt to chain as the cause.
                 self.assertIs(raised.exception, throttle)
-                self.assertIs(raised.exception.__cause__, original)
 
     def test_login_bad_password_restores_login_response_when_caa_fallback_fails(self):
         client = Client()

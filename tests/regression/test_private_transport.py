@@ -32,7 +32,7 @@ def test_missing_curl_dependency_has_actionable_error(monkeypatch, kwargs):
 
 @pytest.fixture
 def curl_adapter_factory():
-    with mock.patch("instagrapi.transports.create_curl_h2_adapter") as factory:
+    with mock.patch("instagrapi_latest.transports.create_curl_h2_adapter") as factory:
         factory.return_value = mock.Mock(spec=HTTPAdapter)
         yield factory
 
@@ -94,7 +94,7 @@ def test_invalid_transport_update_does_not_replace_adapter(curl_adapter_factory)
 def test_unavailable_transport_update_keeps_working_configuration():
     client = Client(private_transport="requests")
     adapter = client.private.get_adapter("https://i.instagram.com/")
-    with mock.patch("instagrapi.transports.create_curl_h2_adapter", side_effect=RuntimeError("Unavailable")):
+    with mock.patch("instagrapi_latest.transports.create_curl_h2_adapter", side_effect=RuntimeError("Unavailable")):
         with pytest.raises(RuntimeError, match="Unavailable"):
             client.set_retry_config(private_transport="curl")
     assert client.private_transport == "requests"

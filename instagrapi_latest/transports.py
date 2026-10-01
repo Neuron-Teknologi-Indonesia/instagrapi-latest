@@ -12,6 +12,7 @@ from requests.adapters import HTTPAdapter
 from requests.utils import select_proxy
 from urllib3._collections import HTTPHeaderDict
 from urllib3.response import HTTPResponse
+from urllib3.util.retry import Retry
 
 
 def create_curl_h2_adapter():
@@ -39,7 +40,9 @@ class _CurlH2Adapter(HTTPAdapter):
         if not version or tuple(map(int, version.groups())) < (8, 10, 0):
             raise RuntimeError("curl private transport requires libcurl >= 8.10.0 for h2-only ALPN")
 
-        super().__init__(max_retries=0)
+        # No request retries; hand the final response back to _send_private_request
+        # (raise_on_status=False semantics) so it maps to a typed error.
+        super().__init__(max_retries=Retry(total=0, raise_on_status=False))
         self._curl_requests = curl_requests
         self._http2 = CurlHttpVersion.V2_0
         self._capath_option = CurlOpt.CAPATH

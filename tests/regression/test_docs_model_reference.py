@@ -2,7 +2,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-TYPES_SOURCE = ROOT / "instagrapi" / "types.py"
+TYPES_SOURCE = ROOT / "instagrapi_latest" / "types.py"
 MODEL_REFERENCE = ROOT / "docs" / "usage-guide" / "types.md"
 MKDOCS_CONFIG = ROOT / "mkdocs.yml"
 

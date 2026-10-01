@@ -752,7 +752,7 @@ class UserPinnedMediasRegressionTestCase(unittest.TestCase):
 
         with mock.patch.object(client, "private_request", return_value=response):
             with mock.patch(
-                "instagrapi.mixins.media.extract_media_v1",
+                "instagrapi_latest.mixins.media.extract_media_v1",
                 side_effect=lambda media: media,
             ):
                 medias = client.user_pinned_medias("1349651722")

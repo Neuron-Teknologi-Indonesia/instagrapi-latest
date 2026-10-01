@@ -33,8 +33,8 @@ def upload_client(monkeypatch, tmp_path):
     monkeypatch.setattr(client, "video_rupload", Mock(return_value=("20", 720, 1280, 5, thumbnail)))
     monkeypatch.setattr(client.private, "get", Mock(return_value=Mock(status_code=200)))
     monkeypatch.setattr(client.private, "post", Mock(return_value=Mock(status_code=200)))
-    monkeypatch.setattr("instagrapi.mixins.clip.analyze_video", Mock(return_value=(thumbnail, 720, 1280, 5)))
-    monkeypatch.setattr("instagrapi.mixins.igtv.analyze_video", Mock(return_value=(thumbnail, 720, 1280, 5)))
+    monkeypatch.setattr("instagrapi_latest.mixins.clip.analyze_video", Mock(return_value=(thumbnail, 720, 1280, 5)))
+    monkeypatch.setattr("instagrapi_latest.mixins.igtv.analyze_video", Mock(return_value=(thumbnail, 720, 1280, 5)))
     monkeypatch.setattr("time.sleep", Mock())
     yield client, helpers, video
     client.private.close()

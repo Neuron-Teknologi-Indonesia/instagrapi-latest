@@ -18,7 +18,7 @@ def test_public_user_agent_override_is_preserved():
 
 
 def test_curl_adapter_is_optional_extra():
-    requirements = [Requirement(value) for value in requires("instagrapi")]
+    requirements = [Requirement(value) for value in requires("instagrapi_latest")]
     adapters = [requirement for requirement in requirements if requirement.name == "curl-adapter"]
 
     assert len(adapters) == 1

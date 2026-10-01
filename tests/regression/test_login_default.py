@@ -67,7 +67,7 @@ class LoginDefaultRegressionTestCase(unittest.TestCase):
 
     def test_login_uses_caa_directly_and_finalizes_success(self):
         self.client.relogin_attempt = 1
-        with patch("instagrapi.mixins.auth.time.time", return_value=1234567890.0):
+        with patch("instagrapi_latest.mixins.auth.time.time", return_value=1234567890.0):
             result = self.client.login(" example ", "password", False, "654321")
 
         self.assertTrue(result)

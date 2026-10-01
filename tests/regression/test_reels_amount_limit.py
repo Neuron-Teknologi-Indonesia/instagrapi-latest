@@ -13,7 +13,7 @@ def client(monkeypatch):
     client = Client()
     client.logger = Mock()
     monkeypatch.setattr(
-        "instagrapi.mixins.timeline.extract_media_v1", lambda value: SimpleNamespace(pk=str(value["pk"]))
+        "instagrapi_latest.mixins.timeline.extract_media_v1", lambda value: SimpleNamespace(pk=str(value["pk"]))
     )
     return client
 
@@ -53,7 +53,7 @@ def test_media_beyond_amount_is_not_extracted(client, monkeypatch):
         assert value["pk"] == 1, "media beyond requested amount must not be parsed"
         return SimpleNamespace(pk="1")
 
-    monkeypatch.setattr("instagrapi.mixins.timeline.extract_media_v1", extract)
+    monkeypatch.setattr("instagrapi_latest.mixins.timeline.extract_media_v1", extract)
     client.private_request = request_mock(return_value=page(1, 2, more=True, cursor="A"))
     assert [m.pk for m in run(client, collection_pk="reels", amount=1)] == ["1"]
     assert client.private_request.call_count == 1

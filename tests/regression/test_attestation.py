@@ -54,7 +54,7 @@ class DeviceAttestationRegressionTestCase(unittest.TestCase):
         self.assertEqual(client.usdid_generate(), original_identity[0])
         self.assertEqual((client.usdid, client.usdid_kid, client.usdid_private_key), original_identity)
 
-        with mock.patch("instagrapi.mixins.attestation.time.time", return_value=1000):
+        with mock.patch("instagrapi_latest.mixins.attestation.time.time", return_value=1000):
             original_header = client.usdid_header()
             client._usdid_header_expires_at = 1000 + USDID_REFRESH_MARGIN
             refreshed_header = client.usdid_header()

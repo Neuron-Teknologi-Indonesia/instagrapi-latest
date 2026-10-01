@@ -191,7 +191,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         self.assertNotIn("not handled by challenge_code_handler", str(error))
 
     def test_is_opaque_native_challenge_classifies_known_payload_shapes(self):
-        from instagrapi.exceptions import is_opaque_native_challenge
+        from instagrapi_latest.exceptions import is_opaque_native_challenge
 
         opaque_context = "Q9y1BQFBLJfHfTspRC1e_hDAICJ_cB3aKCsZfpawh5ruxLS7zr-jnA4NpZ6EjKr7g_CBOA06DCmg5mNw"
         json_context = '{"step_name": "", "cni": 18226879502000588, "is_stateless": false}'
@@ -238,7 +238,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         response.request = requests.Request("GET", response.url).prepare()
 
         with mock.patch.object(client.private, "get", return_value=response):
-            with mock.patch("instagrapi.mixins.private.time.sleep"):
+            with mock.patch("instagrapi_latest.mixins.private.time.sleep"):
                 with self.assertRaises(ChallengeRequired):
                     client.private_request("media/1/comments/")
 
@@ -325,7 +325,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         }
         client.challenge_code_handler = lambda *args, **kwargs: False
 
-        with mock.patch("instagrapi.mixins.challenge.time.sleep") as sleep:
+        with mock.patch("instagrapi_latest.mixins.challenge.time.sleep") as sleep:
             with self.assertRaises(ChallengeRequired) as cm:
                 client.challenge_resolve_simple("challenge/test/")
 
@@ -597,8 +597,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         fake_session.get.return_value = Mock()
         fake_session.post.return_value = Mock(json=Mock(return_value={}))
 
-        with mock.patch("instagrapi.mixins.challenge.requests.Session", return_value=fake_session):
-            with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.requests.Session", return_value=fake_session):
+            with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
                 with mock.patch.object(
                     client,
                     "handle_challenge_result",
@@ -623,8 +623,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
             Mock(json=Mock(return_value={})),
         ]
 
-        with mock.patch("instagrapi.mixins.challenge.requests.Session", return_value=fake_session):
-            with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.requests.Session", return_value=fake_session):
+            with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
                 with mock.patch.object(
                     client,
                     "handle_challenge_result",
@@ -772,7 +772,7 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         }
         client.change_password_handler = Mock(return_value="")
 
-        with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
             with self.assertRaises(ChallengeRequired) as cm:
                 client.challenge_resolve_simple("/challenge/test/")
 
@@ -866,8 +866,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
         fake_session.get.return_value = Mock()
         fake_session.post.return_value = Mock(json=Mock(return_value={}))
 
-        with mock.patch("instagrapi.mixins.challenge.requests.Session", return_value=fake_session):
-            with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.requests.Session", return_value=fake_session):
+            with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
                 with mock.patch.object(
                     client,
                     "handle_challenge_result",
@@ -900,8 +900,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
             ),
         ]
 
-        with mock.patch("instagrapi.mixins.challenge.requests.Session", return_value=fake_session):
-            with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.requests.Session", return_value=fake_session):
+            with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
                 with mock.patch.object(
                     client,
                     "handle_challenge_result",
@@ -935,8 +935,8 @@ class ChallengeRegressionTestCase(unittest.TestCase):
             Mock(json=Mock(return_value={"type": "NOPE", "status": "fail"})),
         ]
 
-        with mock.patch("instagrapi.mixins.challenge.requests.Session", return_value=fake_session):
-            with mock.patch("instagrapi.mixins.challenge.time.sleep"):
+        with mock.patch("instagrapi_latest.mixins.challenge.requests.Session", return_value=fake_session):
+            with mock.patch("instagrapi_latest.mixins.challenge.time.sleep"):
                 with mock.patch.object(
                     client,
                     "handle_challenge_result",
