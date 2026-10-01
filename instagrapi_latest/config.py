@@ -29,6 +29,11 @@ APP_SETTINGS = {
         "version_code": "1065560286",
         "bloks_versioning_id": "0bc46a03e177bfc9bc8d611918815acf248fa9c77754d807d6a5951dc9ce9432",
     },
+    "449.0.0.48.84": {
+        "app_version": "449.0.0.48.84",
+        "version_code": "1078743311",
+        "bloks_versioning_id": "799db3e387d7a21a19c72918b8698b6cd28a1516ade363792c100ed45a0f9f0b",
+    },
     "446.0.0.49.77": {
         "app_version": "446.0.0.49.77",
         "version_code": "385211303",

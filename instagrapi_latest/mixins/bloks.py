@@ -1,4 +1,5 @@
 import json
+from ..exceptions import ChallengeRequired
 import re
 import time
 from http.cookies import SimpleCookie
@@ -1093,6 +1094,19 @@ class BloksMixin:
             login=True,
         )
 
+    def caa_two_step_verification_channel(self, *results: Dict) -> str:
+        """Detect the CAA two-step channel from the Bloks screen payloads."""
+        markers = ("email_challenge", "whatsapp_challenge", "sms_challenge")
+        text = " ".join(json.dumps(result) for result in results if result)
+        found = [marker for marker in markers if marker in text]
+        if "email_challenge" in found:
+            return "email"
+        if "whatsapp_challenge" in found:
+            return "whatsapp"
+        if "sms_challenge" in found:
+            return "sms"
+        return ""
+
     def bloks_caa_resolve_two_step_verification(
         self,
         send_result: Dict,
@@ -1113,7 +1127,16 @@ class BloksMixin:
         submit_context = self.bloks_extract_context_data(code_result, AP_2SV_CODE_ENTRY_ASYNC)
         if not submit_context:
             return {"logged_in": False, "reason": "missing code_entry_async context_data"}
-        code = verification_code or self.challenge_code_or_raised(ChallengeChoice.EMAIL)
+        channel = self.caa_two_step_verification_channel(entry_result, code_result)
+        if verification_code:
+            code = verification_code
+        elif channel in ("sms", "whatsapp"):
+            raise ChallengeRequired(
+                "CAA two-step verification requires %s; this account has no email challenge available" % channel.upper(),
+                **self._challenge_error_context(),
+            )
+        else:
+            code = self.challenge_code_or_raised(ChallengeChoice.EMAIL)
         try:
             submit_result = self.bloks_ap_two_step_verification_submit_code(
                 submit_context,
