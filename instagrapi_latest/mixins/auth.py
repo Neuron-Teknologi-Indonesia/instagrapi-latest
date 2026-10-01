@@ -827,16 +827,26 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
         except ClientError as caa_exc:
             if not self._is_unavailable_caa_login_error(caa_exc):
                 raise
-            # The CAA endpoint is unavailable for this account (for example a
-            # 404 "Payload returned is null"). Fall back to the legacy accounts
-            # flow and surface its own response instead of masking it with the
-            # CAA transport error.
+            # A 404 / "Payload returned is null" from the CAA endpoint is usually
+            # a transient edge hiccup. The legacy accounts/login endpoint reports
+            # needs_upgrade ("update your app") for every CAA account, which masks
+            # the real failure, so retry CAA once before falling back.
             self.last_json = pre_caa_last_json
             try:
-                return self.login_legacy(verification_code=verification_code)
-            except Exception:
+                outcome = self.bloks_caa_login(verification_code=verification_code)
+            except ClientError as retry_exc:
+                if not self._is_unavailable_caa_login_error(retry_exc):
+                    raise
+                # The CAA endpoint is unavailable for this account (for example a
+                # 404 "Payload returned is null"). Fall back to the legacy accounts
+                # flow and surface its own response instead of masking it with the
+                # CAA transport error.
                 self.last_json = pre_caa_last_json
-                raise
+                try:
+                    return self.login_legacy(verification_code=verification_code)
+                except Exception:
+                    self.last_json = pre_caa_last_json
+                    raise
         logged = bool(outcome.get("logged_in"))
         if not logged:
             context = self._extract_two_step_verification_context(outcome)
