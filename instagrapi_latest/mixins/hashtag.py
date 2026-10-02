@@ -3,7 +3,13 @@ import json
 import warnings
 from typing import Iterator, List, Literal, Tuple
 
-from instagrapi_latest.exceptions import ClientError, ClientLoginRequired, HashtagNotFound, PrivateError, WrongCursorError
+from instagrapi_latest.exceptions import (
+    ClientError,
+    ClientLoginRequired,
+    HashtagNotFound,
+    PrivateError,
+    WrongCursorError,
+)
 from instagrapi_latest.extractors import (
     extract_hashtag_gql,
     extract_hashtag_v1,

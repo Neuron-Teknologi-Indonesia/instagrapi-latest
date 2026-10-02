@@ -1,5 +1,4 @@
 import json
-from ..exceptions import ChallengeRequired
 import re
 import time
 from http.cookies import SimpleCookie
@@ -7,7 +6,7 @@ from json import JSONDecodeError
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from instagrapi_latest.exceptions import ChallengeError, ClientError, TwoFactorRequired
+from instagrapi_latest.exceptions import ChallengeError, ChallengeRequired, ClientError, TwoFactorRequired
 from instagrapi_latest.mixins.challenge import ChallengeChoice
 from instagrapi_latest.utils.serialization import dumps
 

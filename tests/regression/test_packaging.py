@@ -9,7 +9,7 @@ def test_package_version_matches_pyproject():
     match = re.search(r'(?m)^version = "([^"]+)"', pyproject)
 
     assert match is not None
-    assert instagrapi.__version__ == match.group(1)
+    assert instagrapi_latest.__version__ == match.group(1)
 
 
 def test_pydantic_dependency_allows_termux_android_wheel_version():
