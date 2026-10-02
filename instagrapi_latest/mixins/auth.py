@@ -1328,7 +1328,8 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
         seed: str, optional
             Seed used for stable app selection
         hydrate_incomplete_profile: bool, optional
-            Hydrate incomplete app profile fields from the current default app
+            Hydrate incomplete app profile fields from the current default app.
+            Profiles without a Bloks hash are always hydrated (CAA needs one).
 
         Returns
         -------
@@ -1341,6 +1342,7 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
         if not config.APP_SETTINGS:
             raise ValueError("APP_SETTINGS is empty")
         override_app_version = bool(getattr(self, "override_app_version", False))
+        self.app_profile_hydrated = False
 
         def apply_settings(app_settings: Dict) -> None:
             for key in app_keys:
@@ -1359,14 +1361,6 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
         def default_settings() -> Dict:
             return config.APP_SETTINGS.get(config.DEFAULT_APP_VERSION) or pick_by_seed()
 
-        def is_current_or_newer_app_version(value: Any) -> bool:
-            try:
-                version = tuple(int(part) for part in str(value).split("."))
-                default_version = tuple(int(part) for part in config.DEFAULT_APP_VERSION.split("."))
-            except (TypeError, ValueError):
-                return False
-            return version >= default_version
-
         if app:
             if isinstance(app, str):
                 matched = config.APP_SETTINGS.get(app)
@@ -1382,13 +1376,19 @@ class LoginMixin(PreLoginFlowMixin, PostLoginFlowMixin):
                 apply_settings(matched)
             else:
                 has_complete_app_profile = all(self.device_settings.get(key) for key in app_keys)
+                has_bloks_pair = bool(self.device_settings.get("bloks_versioning_id"))
+                # CAA login cannot complete without a Bloks hash. When the stored
+                # profile carries none (older exports predate the supported app
+                # pairs), upgrade the app trio to the default supported pair
+                # instead of leaving bloks_versioning_id empty.
                 should_hydrate_incomplete_profile = (
-                    hydrate_incomplete_profile
-                    and not has_complete_app_profile
-                    and is_current_or_newer_app_version(app_version)
+                    not has_complete_app_profile
+                    and (hydrate_incomplete_profile or not has_bloks_pair)
                 )
                 if override_app_version or not app_version or should_hydrate_incomplete_profile:
                     apply_settings(default_settings())
+                    if app_version and not has_bloks_pair:
+                        self.app_profile_hydrated = True
 
         if override_app_version:
             self.set_user_agent()
