@@ -2,7 +2,7 @@ import unittest
 from copy import deepcopy
 from unittest.mock import Mock
 
-from instagrapi import Client
+from instagrapi_latest import Client
 
 
 class SessionHeaderResetTestCase(unittest.TestCase):

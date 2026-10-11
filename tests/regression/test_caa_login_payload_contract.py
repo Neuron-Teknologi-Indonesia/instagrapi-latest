@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from instagrapi import Client, config
+from instagrapi_latest import Client, config
 
 
 class CaaLoginPayloadContractTestCase(unittest.TestCase):

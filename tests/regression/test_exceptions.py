@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from instagrapi.exceptions import ClientError, ClientForbiddenError
+from instagrapi_latest.exceptions import ClientError, ClientForbiddenError
 
 
 @pytest.mark.parametrize("status_code", [200, 302, 400, 401, 403, 404, 408, 429, 500])
