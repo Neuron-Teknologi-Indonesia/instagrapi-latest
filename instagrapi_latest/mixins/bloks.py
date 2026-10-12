@@ -953,36 +953,57 @@ class BloksMixin:
                 strings.append(decoded)
             index += consumed
 
-    def bloks_extract_context_data(self, result: Dict, app_id: str) -> str:
-        """Extract the context token chained to an exact Bloks app id."""
+    def _bloks_context_from_expression(self, expression: str, context_key: str):
+        """Read one literal static parameter map; return ``(found, value)``.
+
+        ``found`` is True when ``context_key`` appears in the map (its value
+        may still be rejected as a non-literal expression). Only literal maps
+        are descended into: an evaluated ``server_params`` value (``f6m`` etc.)
+        is not a context carrier.
+        """
+        while expression:
+            items = self._bloks_expression_items(expression)
+            if len(items) != 3 or items[0] != "f4i":
+                return False, ""
+            keys = self._bloks_expression_items(items[1])
+            values = self._bloks_expression_items(items[2])
+            if keys[:1] != ["dkc"] or values[:1] != ["dkc"] or len(keys) != len(values):
+                return False, ""
+            expression = ""
+            for key, value in zip(keys[1:], values[1:]):
+                if not key.startswith('"'):
+                    continue
+                name = json.loads(key)
+                if name == context_key:
+                    # Contexts must be literal strings, never evaluated expressions.
+                    return True, json.loads(value) if value.startswith('"') else ""
+                if name == "server_params":
+                    # Only descend into the target app's static server parameters.
+                    expression = value
+        return False, ""
+
+    def _bloks_extract_context_value(self, result: Dict, app_id: str, context_key: str) -> str:
+        """Read a literal context from the target app's static parameter map.
+
+        Ported from upstream ``fix: pair CAA two-step context with its
+        parameter key`` (#2849): contexts must be literal strings from the
+        exact app's static map, never evaluated expressions. This fork keeps
+        two live-validated tolerances (covered by ``test_attestation.py``):
+        a related ``*_help`` companion may appear before the app's map, and
+        UI maps without a matching key are skipped in favour of the next
+        sibling map.
+        """
         strings: List[str] = []
         self._bloks_collect_strings(result, strings)
-        # Do not treat code_entry as a prefix of code_entry_help / code_entry_async.
-        anchor = re.compile(re.escape(app_id) + r"(?![_a-zA-Z0-9])")
+        anchor = re.compile(re.escape(json.dumps(app_id)))
         app_reference = re.compile(r"(?<![_a-zA-Z0-9])com\.bloks\.[_a-zA-Z0-9.]+")
 
-        def _is_related_app(other: str) -> bool:
+        def _is_related(other: str) -> bool:
+            # Fork divergence: the CAA chain can name the app's ``*_help``
+            # companion between the anchor and the app's own parameter map.
+            # Upstream rejects any app reference in between; this fork keeps
+            # the live-validated tolerance for related apps only.
             return other == app_id or other.startswith(app_id + "_") or other.endswith("_help")
-
-        def _context_from_map(expression: str) -> str:
-            groups: List[List[str]] = []
-            cursor = 0
-            while True:
-                group_start = expression.find("(dkc", cursor)
-                if group_start < 0:
-                    break
-                group = self._bloks_parenthesized_expression(expression, group_start)
-                if not group:
-                    break
-                groups.append(self._bloks_string_literals(group))
-                cursor = group_start + len(group)
-            for keys, values in zip(groups, groups[1:]):
-                if "context_data" not in keys:
-                    continue
-                context_index = keys.index("context_data")
-                if context_index < len(values):
-                    return values[context_index]
-            return ""
 
         for text in strings:
             for found in anchor.finditer(text):
@@ -991,18 +1012,33 @@ class BloksMixin:
                     map_start = text.find("(f4i", cursor)
                     if map_start < 0:
                         break
-                    between = [
-                        app for app in app_reference.findall(text[found.end() : map_start]) if not _is_related_app(app)
-                    ]
-                    if between:
+                    unrelated_between = False
+                    match = app_reference.search(text, found.end())
+                    while match and match.start() < map_start:
+                        if not _is_related(match.group()):
+                            unrelated_between = True
+                            break
+                        match = app_reference.search(text, match.end())
+                    if unrelated_between:
+                        # Never borrow a later app's map.
                         break
                     expression = self._bloks_parenthesized_expression(text, map_start)
-                    if expression:
-                        context = _context_from_map(expression)
-                        if context:
-                            return context
-                    cursor = map_start + 4
+                    if not expression:
+                        break
+                    found_key, value = self._bloks_context_from_expression(expression, context_key)
+                    if found_key:
+                        return value
+                    # A UI map without the requested key: try the next sibling.
+                    cursor = map_start + len(expression)
         return ""
+
+    def bloks_extract_context_data(self, result: Dict, app_id: str) -> str:
+        """Extract the context token chained to an exact Bloks app id.
+
+        Uses the upstream static-parameter-map pairing (``#2849``) so only
+        literal contexts from the exact app's ``server_params`` are returned.
+        """
+        return self._bloks_extract_context_value(result, app_id, "context_data")
 
     def bloks_ap_two_step_verification_entrypoint(
         self,
@@ -1202,19 +1238,13 @@ class BloksMixin:
         if isinstance(value, str) and value.strip():
             return value.strip()
         action = result.get("layout", {}).get("bloks_payload", {}).get("action", "")
-        if not isinstance(action, str) or "two_step_verification.entrypoint" not in action:
+        if not isinstance(action, str):
             return ""
-        marker = '"two_step_verification_context"'
-        marker_index = action.find(marker)
-        if marker_index < 0:
-            return ""
-        key_list_end = action.find(")", marker_index)
-        if key_list_end < 0:
-            return ""
-        value_group = re.search(r"\(dkc\s+", action[key_list_end:])
-        if not value_group:
-            return ""
-        return self._extract_first_json_string(action, key_list_end + value_group.start()).strip()
+        return self._bloks_extract_context_value(
+            {"action": action},
+            LEGACY_2SV_ENTRYPOINT,
+            "two_step_verification_context",
+        ).strip()
 
     def bloks_extract_login_response(self, result: Dict) -> Dict[str, Any]:
         """
