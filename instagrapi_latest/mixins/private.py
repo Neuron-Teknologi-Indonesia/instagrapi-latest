@@ -21,6 +21,7 @@ from instagrapi_latest.exceptions import (
     ClientForbiddenError,
     ClientIncompleteReadError,
     ClientJSONDecodeError,
+    ClientNeedsUpgradeError,
     ClientNotFoundError,
     ClientRequestTimeout,
     ClientThrottledError,
@@ -628,6 +629,8 @@ class PrivateRequestMixin:
                         "Instagram has blocked your IP address, use a quality proxy provider (not free, not shared)"
                     )
                     raise ProxyAddressIsBlocked(**last_json)
+                elif error_type == "needs_upgrade":
+                    raise ClientNeedsUpgradeError(**dict(last_json, response=e.response))
                 elif error_type or message:
                     raise UnknownError(**last_json)
                 # TODO: Handle last_json with {'message': 'counter get error', 'status': 'fail'}
