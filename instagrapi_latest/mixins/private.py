@@ -469,6 +469,7 @@ class PrivateRequestMixin:
         headers=None,
         extra_sig=None,
         domain: str = None,
+        return_response=False,
     ):
         self.last_response = None
         self.last_json = last_json = {}  # for Sentry context in traceback
@@ -528,6 +529,8 @@ class PrivateRequestMixin:
                 self.mid = mid
             self.request_log(response)
             self.last_response = response
+            if return_response:
+                return response
             response.raise_for_status()
             # last_json - for Sentry context in traceback
             self.last_json = last_json = response.json()
